@@ -5,14 +5,14 @@ import { test } from 'node:test';
 import { checkEmail, checkNickname, checkPassword, checkPasswordConfirm } from './validators.ts';
 
 test('checkEmail', () => {
-  assert.equal(checkEmail('demo@zalssm.test'), '');
-  assert.equal(checkEmail(' demo@zalssm.test '), '');
+  assert.equal(checkEmail('demo@yeongsugori.test'), '');
+  assert.equal(checkEmail(' demo@yeongsugori.test '), '');
   assert.equal(checkEmail('abc'), '올바른 이메일 형식이 아닙니다');
   assert.equal(checkEmail(`${'a'.repeat(95)}@b.com`), '올바른 이메일 형식이 아닙니다');
 });
 
 test('checkNickname: 앞뒤 공백을 빼고 2~12자', () => {
-  assert.equal(checkNickname('잘쓰는사람'), '');
+  assert.equal(checkNickname('기록하는사람'), '');
   assert.equal(checkNickname(' 가 '), '닉네임은 2~12자로 입력하세요');
   assert.equal(checkNickname('가'.repeat(13)), '닉네임은 2~12자로 입력하세요');
 });

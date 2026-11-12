@@ -4,7 +4,7 @@ import json
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from data_domains.zalssm_data_domain import Receipt, Transaction
+from data_domains.yeongsugori_data_domain import Receipt, Transaction
 from models.base_model import BaseModel
 from others import config
 from others.constants import EXPENSE_CATEGORIES

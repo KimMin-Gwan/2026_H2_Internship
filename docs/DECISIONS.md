@@ -7,7 +7,7 @@
 ### 해야 할 일 (사용자)
 1. **`.env` 의 `JWT_SECRET_KEY`**: 비어 있어 백엔드 컨테이너가 시작하지 않는다. 길고 임의의 문자열로 채운다. 예전 예시에서 남은 `SESSION_TTL_DAYS` 줄은 지우고, `MONGODB_URI`·`UPLOAD_DIR` 는 비워 두는 것이 기본이다.
 2. **OpenAI 실제 호출 확인**: `.env` 에 `OPENAI_API_KEY` 를 넣고 `pytest -m live` 를 한 번 돌린다. 기본 모델 `gpt-6-luna` 가 구조화 출력을 지원하는지 문서에서 직접 확인하지 못했다. 실패하면 `OPENAI_MODEL` 을 `gpt-6.1-terra` 등으로 바꾼다.
-3. **휴대폰 QA**: `docs/08-qa-results.md` 3절 (카메라, 화면 키보드, 같은 Wi-Fi 접속).
+3. **휴대폰 QA**: `docs/09-qa-results.md` 3절 (카메라, 화면 키보드, 같은 Wi-Fi 접속).
 
 ### 정해 주면 맞출 것
 4. ~~DB~~: MongoDB Atlas를 기본으로 정했다 (2026-11-05 기록). Atlas 접속 주소는 사용자가 `.env` 에 직접 넣는다.
@@ -39,7 +39,7 @@
 | 2026-11-04 | 입력 검증은 Pydantic이 아니라 model이 한다. 요청 클래스는 슈퍼노바처럼 `body.get(키, 기본값)` 으로 읽는다 | Claude (슈퍼노바 샘플) |
 | 2026-11-04 | 샘플 `main.py` 의 CORS 설정과 코드에 적힌 JWT 키는 넣지 않았다. nginx로 같은 출처이고, 비밀값은 코드에 두지 않는다 | Claude |
 | 2026-11-04 | `/health` 는 DB 연결까지 확인한다. 실패면 `server` + `status: db_error` | Claude |
-| 2026-11-04 | 인증을 서버 세션에서 **JWT + HttpOnly 쿠키**(`zalssm_token`, HS256, `JWT_SECRET_KEY`, 7일)로 바꿨다. `sessions` 컬렉션과 `Session` 도메인 삭제. 로그아웃은 쿠키 삭제, 탈퇴한 사용자의 토큰은 사용자 조회에서 401 | 사용자 |
+| 2026-11-04 | 인증을 서버 세션에서 **JWT + HttpOnly 쿠키**(`yeongsugori_token`, HS256, `JWT_SECRET_KEY`, 7일)로 바꿨다. `sessions` 컬렉션과 `Session` 도메인 삭제. 로그아웃은 쿠키 삭제, 탈퇴한 사용자의 토큰은 사용자 조회에서 401 | 사용자 |
 | 2026-11-04 | M2 완료: `sign_view.py`·`sign_controller.py`·`sign_model.py`, `utils/request_manager.py`(JWT 쿠키 확인, `try_view_management_need_authorized`), `utils/jwt_manager.py`, `utils/password.py`(bcrypt). 라이브러리 PyJWT, bcrypt 추가 | Claude |
 | 2026-11-04 | 로그인 필요 응답은 두 곳에서 HTTP 401이 된다: 토큰이 없거나 틀리면 `CredentialsException`(main.py 처리기), 토큰은 맞지만 사용자가 없으면(탈퇴) 모델의 `unauthorized` 를 `make_json_response` 가 401로 보낸다 | Claude |
 | 2026-11-04 | `JWT_SECRET_KEY` 가 비어 있으면 서버가 시작하지 않는다. 개발 서버는 `--env-file ../.env` 로 같은 `.env` 를 쓴다. `MONGODB_URI` 는 비워 두는 것이 기본(compose가 mongo 컨테이너 주소를 넣음) | Claude |
@@ -83,12 +83,17 @@
 | 2026-11-05 | OpenAI 호출은 SDK 대신 `httpx` 로 Responses API(`/v1/responses`)를 직접 부른다. 라이브러리를 늘리지 않고, 수업에서 HTTP 요청 모양을 그대로 보여 줄 수 있다 | Claude |
 | 2026-11-05 | `OCR_TIMEOUT_SEC` 는 재시도를 합친 전체 제한 시간이다. 두 번째 시도는 남은 시간만큼만 기다린다(nginx 60초 안에 끝나도록) | Claude |
 | 2026-11-05 | 실제 호출 테스트는 `@pytest.mark.live` 로 분리해 기본 실행(`pytest`)에서 뺐다. 개인정보 없는 영문 가짜 영수증을 그려서 보낸다 | Claude |
-| 2026-11-05 | M9 완료: `back/scripts/seed.py`(데모 계정 + 시안과 같은 10·11월 내역, 영수증 이미지 포함, 있으면 건너뜀, 테스트 포함), README 시연 절차(방화벽·IP·AP 격리), QA 결과 `docs/08-qa-results.md` | Claude |
+| 2026-11-05 | M9 완료: `back/scripts/seed.py`(데모 계정 + 시안과 같은 10·11월 내역, 영수증 이미지 포함, 있으면 건너뜀, 테스트 포함), README 시연 절차(방화벽·IP·AP 격리), QA 결과 `docs/09-qa-results.md` | Claude |
 | 2026-11-05 | 데모 데이터는 2026년 10·11월 고정 날짜다(시안과 같게). 다른 달에 시연하면 월 선택에서 그 달로 이동해 보여 준다 | Claude |
 | 2026-11-05 | 백엔드 이미지에 `scripts/` 를 넣어 `docker compose exec back python -m scripts.seed` 로 실행한다 | Claude |
 | 2026-11-05 | 백엔드 import를 슈퍼노바 방식으로 바꿨다: `back/app` 이 기준 폴더이고 `from models import ...` 처럼 `app.` 없이 쓴다. 개발은 `back/app` 에서 `python main.py`(reload, 0.0.0.0:8000), docker는 `uvicorn main:app`. 시드 스크립트는 `back/app/scripts/` 로 옮겼다 | 사용자 요청 |
 | 2026-11-05 | `others/config.py` 가 저장소 맨 위의 `.env` 를 python-dotenv로 읽는다(이미 있는 환경 변수는 덮어쓰지 않음). 그래서 `--env-file` 이 필요 없다. 테스트는 `conftest.py` 에서 DB·분석 모드 등을 직접 정해 `.env` 의 영향을 받지 않는다 | Claude |
 | 2026-11-05 | DB 기본을 **MongoDB Atlas** 로 바꿨다. compose의 mongo 서비스는 `profiles: [local-db]` 로 옮겨 기본으로 켜지지 않는다. `dnspython` 을 requirements에 고정했다(Atlas `mongodb+srv://` 용) | 사용자 |
 | 2026-11-05 | DB 연결 대기를 3초 → 5초로 늘렸다(Atlas 첫 연결의 DNS·TLS 시간) | Claude |
-| 2026-11-05 | 테스트도 `.env` 의 Atlas 주소를 쓰고 DB 이름만 `zalssm_test` 로 바꾼다. 주소가 없거나 docker 전용 주소면 로컬 mongo로 | Claude |
+| 2026-11-05 | 테스트도 `.env` 의 Atlas 주소를 쓰고 DB 이름만 `yeongsugori_test` 로 바꾼다. 주소가 없거나 docker 전용 주소면 로컬 mongo로 | Claude |
 | 2026-11-05 | 서버가 시작하다 멈출 때(키 없음, DB 연결 실패) traceback 대신 원인과 확인할 곳을 두 줄로 출력한다. 주소의 아이디·비밀번호는 가린다. DB 실패는 로컬 컨테이너 주소 / 아이디·비밀번호 / 주소 형식 / IP 허용·인터넷 으로 나눠 안내한다 | 사용자 요청 |
+| 2026-11-05 | 서비스명을 잘씀(ZALSSM)에서 영수고리(YEONGSUGORI)로 변경. 문서·시안·PNG(`yeongsugori.zip`)와 코드에 반영: 서버 클래스 `YEONGSUGORI_Server`, 데이터 도메인 파일 `yeongsugori_data_domain.py`, 쿠키 `yeongsugori_token`, DB 기본 이름 `yeongsugori`(테스트 `yeongsugori_test`), 데모 계정 `demo@yeongsugori.test`, compose 프로젝트 이름 `yeongsugori`, 예시 닉네임 `기록하는사람` | 사용자 |
+| 2026-11-05 | `yeongsugori.zip` 의 문서는 초기 가정(서버 세션, REST 경로, Tailwind, 로컬 mongo 기본)으로 쓰여 있었다. 이미 정한 결정(JWT, 슈퍼노바 응답·경로, CSS Modules, Atlas)을 유지하고, 새 내용(08 문서, M10, 00 문서 결정 14~16)만 지금 문서에 합쳤다 | 사용자 |
+| 2026-11-05 | DB 논리 설계(SQL, ERD)를 `08-db-design.md` 로 추가. 구현은 MongoDB 유지. JWT를 쓰므로 받은 설계의 `sessions` 테이블을 빼고, 대응표를 문자열 ID(`uid` 등)·컬렉션 3개에 맞췄다. ERD 그림(`docs/images/erd*.png`)도 `design/_src/erd.js` 에서 sessions를 빼고 다시 만들었다 | 사용자 + Claude |
+| 2026-11-05 | QA 결과 문서를 `08-qa-results.md` → `09-qa-results.md` 로 옮겼다(08 번호를 DB 설계가 씀) | Claude |
+| 2026-11-05 | 카테고리 분류 scikit-learn 시도(M10). 85% 미만이면 API 분류 유지. 결과가 정해지면 PPT의 AI 항목을 결과에 맞춘다. 아직 시작하지 않음 | 사용자 |

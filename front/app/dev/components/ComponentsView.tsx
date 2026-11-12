@@ -29,7 +29,7 @@ import s from './components.module.css';
 
 export function ComponentsView() {
   const showToast = useToast();
-  const [email, setEmail] = useState('zalssm@example.com');
+  const [email, setEmail] = useState('yeongsugori@example.com');
   const [password, setPassword] = useState('password1');
   const [filter, setFilter] = useState<'all' | 'expense' | 'income'>('expense');
   const [category, setCategory] = useState('식비');

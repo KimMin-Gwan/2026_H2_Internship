@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# DB 주소는 .env 의 MONGODB_URI(Atlas)를 쓰되, DB 이름은 별도(zalssm_test)로 한다. 실제 데이터와 섞이지 않는다.
+# DB 주소는 .env 의 MONGODB_URI(Atlas)를 쓰되, DB 이름은 별도(yeongsugori_test)로 한다. 실제 데이터와 섞이지 않는다.
 # 주소가 비어 있거나 docker 안에서만 통하는 주소(mongo:27017)면 이 PC의 mongo 를 쓴다.
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 if not os.getenv("MONGODB_URI") or "//mongo:" in os.getenv("MONGODB_URI"):
@@ -14,11 +14,11 @@ if not os.getenv("MONGODB_URI") or "//mongo:" in os.getenv("MONGODB_URI"):
 
 # 나머지는 .env 와 상관없이 정한다: 테스트 DB, 임시 폴더(영수증 이미지), mock 분석
 # (config.py 는 .env 를 읽지만 이미 있는 환경 변수는 덮어쓰지 않는다)
-os.environ["MONGODB_DB"] = "zalssm_test"
+os.environ["MONGODB_DB"] = "yeongsugori_test"
 os.environ["OCR_MODE"] = "mock"
 os.environ["MAX_UPLOAD_MB"] = "10"
 os.environ["SCAN_LIMIT_PER_HOUR"] = "20"
-os.environ["UPLOAD_DIR"] = tempfile.mkdtemp(prefix="zalssm_uploads_")
+os.environ["UPLOAD_DIR"] = tempfile.mkdtemp(prefix="yeongsugori_uploads_")
 # 테스트에서만 쓰는 서명 키
 os.environ["JWT_SECRET_KEY"] = "test-only-secret-key-for-pytest-0123456789"
 
@@ -40,7 +40,7 @@ def post(client, path, body):
     return client.post("/api" + path, json={"header": {}, "body": body})
 
 
-def signup(client, email="demo@zalssm.test", nickname="잘쓰는사람", password=PASSWORD):
+def signup(client, email="demo@yeongsugori.test", nickname="기록하는사람", password=PASSWORD):
     return post(client, "/auth/signup", {"email": email, "nickname": nickname, "password": password})
 
 
@@ -64,5 +64,5 @@ def user_client(client):
 @pytest.fixture
 def other_client(client):
     other = TestClient(app)
-    signup(other, email="other@zalssm.test", nickname="다른사람")
+    signup(other, email="other@yeongsugori.test", nickname="다른사람")
     return other

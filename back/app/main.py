@@ -21,9 +21,9 @@ RESET = "\033[0m"
 VERSION = "v0.1.0"
 
 
-class ZALSSM_Server:
+class YEONGSUGORI_Server:
     def __init__(self, database: Mongo_Database, head_parser: Head_Parser, jwt_secret_key: str) -> None:
-        self.__app = FastAPI(title="ZALSSM API")
+        self.__app = FastAPI(title="YEONGSUGORI API")
         self.__head_parser = head_parser
 
         # 로그인이 필요한 API에 토큰 없이 오면 HTTP 401 + unauthorized 로 응답한다.
@@ -107,7 +107,7 @@ def db_error_hint(error: PyMongoError) -> str:
     return "DB에 닿지 못했습니다. Atlas Network Access 에 이 PC의 IP가 있는지, 인터넷 연결을 확인하세요."
 
 
-print(f'{YELLOW}INFO{RESET}<-[      Application | Welcome to ZALSSM Server')
+print(f'{YELLOW}INFO{RESET}<-[      Application | Welcome to YEONGSUGORI Server')
 print(f'{YELLOW}INFO{RESET}<-[      Application | Version : {VERSION}')
 
 # 0. 비밀 키가 없으면 시작하지 않는다 (.env 의 JWT_SECRET_KEY)
@@ -122,10 +122,10 @@ except PyMongoError as error:
     stop_server(f"DB에 연결하지 못했습니다: {hide_password(config.MONGODB_URI)}", db_error_hint(error))
 
 # 2. 서버 조립
-zalssm_server = ZALSSM_Server(database=database, head_parser=Head_Parser(), jwt_secret_key=config.JWT_SECRET_KEY)
+yeongsugori_server = YEONGSUGORI_Server(database=database, head_parser=Head_Parser(), jwt_secret_key=config.JWT_SECRET_KEY)
 
 # 3. uvicorn이 바라볼 최종 FastAPI 앱 객체
-app = zalssm_server.get_app()
+app = yeongsugori_server.get_app()
 
 # python main.py 로 직접 켤 때. 코드를 고치면 자동으로 다시 켜진다(reload). 같은 Wi-Fi의 휴대폰에서도 접속할 수 있게 0.0.0.0
 if __name__ == "__main__":

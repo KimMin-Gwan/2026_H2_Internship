@@ -2,7 +2,7 @@
 
 기본 경로 `/api`. 요청·응답은 JSON(UTF-8), 업로드만 `multipart/form-data`.
 메서드는 슈퍼노바처럼 **GET(조회)과 POST(변경)만** 쓰고, 경로는 `/{모듈}/{동작}` 이름으로 짓는다(예: `/transaction/create_transaction`).
-인증은 쿠키 `zalssm_token`(JWT) (auth 계열 일부 제외 전부 필요). 금액은 원 단위 정수, 날짜는 `YYYY-MM-DD`, 월은 `YYYY-MM`, 시각은 ISO 8601 UTC.
+인증은 쿠키 `yeongsugori_token`(JWT) (auth 계열 일부 제외 전부 필요). 금액은 원 단위 정수, 날짜는 `YYYY-MM-DD`, 월은 `YYYY-MM`, 시각은 ISO 8601 UTC.
 ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`, `receipt_id` (04 문서). **다른 사용자의 리소스 접근은 `not_found`** 로 응답한다(존재 여부 비노출).
 
 ## 1. 요청·응답 모양
@@ -14,7 +14,7 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
 
 ```json
 // 성공
-{ "header": {}, "body": { "result": true, "detail": "", "user": { "uid": "...", "email": "a@b.com", "nickname": "잘쓰는사람" } } }
+{ "header": {}, "body": { "result": true, "detail": "", "user": { "uid": "...", "email": "a@b.com", "nickname": "기록하는사람" } } }
 // 실패
 { "header": {}, "body": { "result": false, "detail": "입력값이 올바르지 않습니다", "error_code": "validation",
                           "fields": { "email": "올바른 이메일 형식이 아닙니다" } } }
@@ -47,8 +47,8 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
 ## 2. 인증 (auth)
 
 ### POST /auth/signup
-요청 `{ "email": "a@b.com", "nickname": "잘쓰는사람", "password": "password1" }`
-응답 `{ "user": { "uid": "...", "email": "a@b.com", "nickname": "잘쓰는사람" } }` + `Set-Cookie` (가입 즉시 로그인). 중복 `email_taken`.
+요청 `{ "email": "a@b.com", "nickname": "기록하는사람", "password": "password1" }`
+응답 `{ "user": { "uid": "...", "email": "a@b.com", "nickname": "기록하는사람" } }` + `Set-Cookie` (가입 즉시 로그인). 중복 `email_taken`.
 
 ### POST /auth/login
 요청 `{ "email": "...", "password": "..." }` → 응답은 signup과 동일 + `Set-Cookie`. 실패 `invalid_credentials`.

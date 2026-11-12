@@ -14,7 +14,7 @@ load_dotenv(BACK_DIR.parent / ".env")
 
 # 비어 있으면 개발용 기본값(이 PC의 mongo)을 쓴다. docker에서는 compose가 mongo 컨테이너 주소를 넣는다.
 MONGODB_URI = os.getenv("MONGODB_URI") or ""
-MONGODB_DB = os.getenv("MONGODB_DB", "zalssm")
+MONGODB_DB = os.getenv("MONGODB_DB", "yeongsugori")
 
 # 로그인 토큰(JWT) 서명 키. 코드에 기본값을 두지 않는다 (main.py에서 비어 있으면 멈춘다).
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "qwer1234")

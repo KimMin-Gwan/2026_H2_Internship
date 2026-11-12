@@ -4,7 +4,7 @@ import { ToastProvider } from './_components/Toast';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '잘씀',
+  title: '영수고리',
   description: '영수증 가계부',
 };
 

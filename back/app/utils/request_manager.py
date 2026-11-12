@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from others import config
 from utils.jwt_manager import make_token, read_token
 
-COOKIE_NAME = "zalssm_token"
+COOKIE_NAME = "yeongsugori_token"
 
 
 # 로그인이 필요한 API에 토큰 없이(또는 만료·위조된 토큰으로) 왔을 때. main.py가 HTTP 401 응답으로 바꾼다.

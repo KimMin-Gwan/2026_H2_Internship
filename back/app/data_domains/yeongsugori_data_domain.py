@@ -1,4 +1,4 @@
-# 잘씀 데이터 도메인 — users, transactions, receipts 컬렉션의 문서 모양 (04 문서).
+# 영수고리 데이터 도메인 — users, transactions, receipts 컬렉션의 문서 모양 (04 문서).
 
 from datetime import datetime
 

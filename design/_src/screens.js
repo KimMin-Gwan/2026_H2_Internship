@@ -31,7 +31,7 @@ const STATS = [["식비", 412300, 32], ["생활", 338500, 11], ["교통", 96400,
 const STAT_TOTAL = STATS.reduce((a, s) => a + s[1], 0);
 const PREV_TOTAL = 1036000;
 
-const BRAND_SMALL = () => D({ display: "flex", alignItems: "center", gap: 8 }, mark(28), T({ fontSize: 20, fontWeight: 800, color: C.primaryDark }, "잘씀"));
+const BRAND_SMALL = () => D({ display: "flex", alignItems: "center", gap: 8 }, mark(28), T({ fontSize: 20, fontWeight: 800, color: C.primaryDark }, "영수고리"));
 
 const summaryCard = (monthLabel, exp, inc) =>
   D({ margin: "0 16px 12px", background: C.deep, borderRadius: 24, padding: "20px 20px 18px", color: "#fff" },
@@ -47,8 +47,8 @@ const A1 = () =>
     D({ position: "absolute", left: 0, top: 0, right: 0, height: 300, background: C.primary }),
     D({ position: "absolute", left: 28, top: 72 },
       mark(52, "#fff", C.primary),
-      T({ fontSize: 40, fontWeight: 800, color: "#fff", marginTop: 16 }, "잘씀"),
-      T({ fontSize: 13, fontWeight: 800, color: C.mint, letterSpacing: "4px", marginTop: 2 }, "ZALSSM"),
+      T({ fontSize: 40, fontWeight: 800, color: "#fff", marginTop: 16 }, "영수고리"),
+      T({ fontSize: 13, fontWeight: 800, color: C.mint, letterSpacing: "4px", marginTop: 2 }, "YEONGSUGORI"),
       T({ fontSize: 15, fontWeight: 500, color: "#fff", marginTop: 14 }, "영수증으로 기록하는 가계부")),
     D({ position: "absolute", right: 28, top: 70, transform: "rotate(7deg)" }, receiptSvg(124, 168, { rows: 5, label: "영수증 일러스트" })),
     D({ position: "absolute", left: 0, right: 0, top: 268, bottom: 0, background: "#fff", borderRadius: "28px 28px 0 0", padding: "32px 24px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 16 },
@@ -65,8 +65,8 @@ const A2 = () =>
   root([
     header("회원가입"),
     D({ padding: "8px 24px", display: "flex", flexDirection: "column", gap: 18 },
-      field({ label: "이메일", value: "zalssm@example.com", type: "email", id: "su-email" }),
-      field({ label: "닉네임", value: "잘쓰는사람", id: "su-nick" }),
+      field({ label: "이메일", value: "yeongsugori@example.com", type: "email", id: "su-email" }),
+      field({ label: "닉네임", value: "기록하는사람", id: "su-nick" }),
       field({ label: "비밀번호", value: "password1", type: "password", id: "su-pw", helper: "8자 이상, 영문과 숫자 포함" }),
       field({ label: "비밀번호 확인", value: "password2", type: "password", id: "su-pw2", error: "비밀번호가 일치하지 않습니다" })),
     actionBar(btn("가입하기"), D({ display: "flex", justifyContent: "center", gap: 8, fontSize: 14, marginTop: 14 }, Sp({ color: C.ink2 }, "이미 계정이 있으신가요?"), E("a", { color: C.primaryDark, fontWeight: 800, textDecoration: "underline" }, { href: "#" }, ["로그인"]))),
@@ -307,8 +307,8 @@ const settingsBody = () => [
   header("설정", { back: false, big: true }),
   D({ margin: "4px 16px 16px", background: "#fff", borderRadius: 20, padding: 20, display: "flex", alignItems: "center", gap: 16 },
     D({ width: 56, height: 56, borderRadius: "50%", background: C.soft, color: C.primaryDark, fontSize: 22, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }, "잘"),
-    D({ display: "flex", flexDirection: "column", gap: 2 }, T({ fontSize: 18, fontWeight: 800 }, "잘쓰는사람"), T({ fontSize: 14, color: C.ink3 }, "zalssm@example.com"))),
-  group("계정", [setRow("닉네임 변경", { value: "잘쓰는사람" }), setRow("비밀번호 변경")]),
+    D({ display: "flex", flexDirection: "column", gap: 2 }, T({ fontSize: 18, fontWeight: 800 }, "기록하는사람"), T({ fontSize: 14, color: C.ink3 }, "yeongsugori@example.com"))),
+  group("계정", [setRow("닉네임 변경", { value: "기록하는사람" }), setRow("비밀번호 변경")]),
   group("정보", [setRow("앱 버전", { value: "1.0.0", chevron: false })]),
   group("계정 관리", [setRow("로그아웃", { icon: "LuLogOut", chevron: false }), setRow("회원 탈퇴", { icon: "LuTrash2", danger: true, chevron: false })]),
 ];
@@ -366,7 +366,7 @@ function designSystem() {
   const sec = (title, ...kids) => D({ display: "flex", flexDirection: "column", gap: 14 }, T({ fontSize: 20, fontWeight: 800 }, title), ...kids);
   const row = (...k) => D({ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }, ...k);
   return D({ width: 1280, height: 1660, boxSizing: "border-box", background: "#fff", padding: 56, fontFamily: L.FONT, color: C.ink, display: "flex", flexDirection: "column", gap: 40 },
-    D({ display: "flex", alignItems: "center", gap: 20 }, mark(72, C.primary, "#fff"), D({}, T({ fontSize: 40, fontWeight: 800 }, "잘씀 ZALSSM"), T({ fontSize: 16, color: C.ink2, marginTop: 4 }, "모바일 디자인 시스템 v1 · 영수증으로 기록하는 가계부"))),
+    D({ display: "flex", alignItems: "center", gap: 20 }, mark(72, C.primary, "#fff"), D({}, T({ fontSize: 40, fontWeight: 800 }, "영수고리 YEONGSUGORI"), T({ fontSize: 16, color: C.ink2, marginTop: 4 }, "모바일 디자인 시스템 v1 · 영수증으로 기록하는 가계부"))),
     sec("색상", row(sw("Primary", C.primary, "#fff", "버튼, 활성 탭, 링크"), sw("Primary Dark", C.primaryDark, "#fff", "눌림, 강조 텍스트"), sw("Primary Soft", C.soft, C.ink, "선택 배경, 안내"), sw("Mint", C.mint, C.ink, "어두운 카드 위 강조"), sw("Deep", C.deep, "#fff", "요약 카드"), sw("Danger", C.danger, "#fff", "삭제, 오류"), sw("Warn", C.warnSoft, C.warnText, "경고 배경 / 글자 " + C.warnText)),
       row(sw("Ink", C.ink, "#fff", "본문"), sw("Ink 2", C.ink2, "#fff", "보조 본문"), sw("Ink 3", C.ink3, "#fff", "설명, 비활성"), sw("Line", C.line, C.ink, "구분선, 테두리"), sw("Background", C.bg, C.ink, "화면 배경"), sw("Card", "#FFFFFF", C.ink, "카드"))),
     sec("카테고리 (아이콘색 / 배경 14%)", row(...EXPENSE_CATS.map((c) => D({ width: 112, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "12px 0", border: `1px solid ${C.line}`, borderRadius: 16 }, catIcon(c, 48), T({ fontSize: 14, fontWeight: 700 }, c), T({ fontSize: 12, color: C.ink3 }, CAT[c].c)))), row(...["급여", "용돈", "기타수입"].map((c) => D({ width: 128, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "12px 0", border: `1px solid ${C.line}`, borderRadius: 16 }, catIcon(c, 48), T({ fontSize: 14, fontWeight: 700 }, c), T({ fontSize: 12, color: C.ink3 }, "수입 공통"))))),
@@ -376,7 +376,7 @@ function designSystem() {
       D({ width: 260 }, T({ fontSize: 15, fontWeight: 600 }, "내역 항목 이름"), T({ fontSize: 12, color: C.ink3 }, "본문 15 / 600, 보조 13 / 500")),
       D({ width: 260 }, T({ fontSize: 13, fontWeight: 700, color: C.ink2 }, "입력 라벨"), T({ fontSize: 12, color: C.ink3 }, "라벨·캡션 13 / 700, 최소 12")))),
     sec("컴포넌트", row(D({ width: 220 }, btn("기본 버튼")), D({ width: 220 }, btn("보조 버튼", { variant: "soft" })), D({ width: 220 }, btn("외곽 버튼", { variant: "outline" })), D({ width: 220 }, btn("삭제", { variant: "danger" })), D({ width: 220 }, btn("비활성", { variant: "disabled" }))),
-      row(D({ width: 300 }, field({ label: "기본", value: "zalssm@example.com", id: "ds1" })), D({ width: 300 }, field({ label: "오류", value: "password2", type: "password", id: "ds2", error: "비밀번호가 일치하지 않습니다" })), D({ width: 300 }, seg(["전체", "지출", "수입"], 1)), D({}, catChip("식비"))),
+      row(D({ width: 300 }, field({ label: "기본", value: "yeongsugori@example.com", id: "ds1" })), D({ width: 300 }, field({ label: "오류", value: "password2", type: "password", id: "ds2", error: "비밀번호가 일치하지 않습니다" })), D({ width: 300 }, seg(["전체", "지출", "수입"], 1)), D({}, catChip("식비"))),
       row(D({ width: 360, background: C.bg, padding: 12, borderRadius: 20 }, dayGroup("11월 3일 화요일", HOME[0][1].slice(0, 2))))),
     sec("규칙", T({ fontSize: 15, lineHeight: 1.7, color: C.ink2 }, "모서리: 카드 20, 버튼 16, 입력 14, 칩 완전 원형 · 간격: 8 단위(화면 좌우 20, 카드 사이 12) · 최소 터치 영역 44 · 아이콘: Lucide 선형 2px · 금액: 지출은 ink, 수입은 primary, 할인(지출 감소)은 + 표시 · 문구: 합니다체 또는 명사형, 짧게. 설명은 글보다 시각 요소로.")));
 }

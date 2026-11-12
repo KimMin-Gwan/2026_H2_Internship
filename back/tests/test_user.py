@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from main import app
 from tests.conftest import PASSWORD, get_test_db, post, signup
 
-EMAIL = "demo@zalssm.test"
+EMAIL = "demo@yeongsugori.test"
 
 
 def test_change_nickname(user_client):

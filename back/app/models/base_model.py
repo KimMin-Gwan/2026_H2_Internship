@@ -1,6 +1,6 @@
 # 모든 모델의 부모 — 로그인한 사용자와 처리 결과(result, detail, error_code)를 들고 있다가 응답 모양으로 만든다.
 
-from data_domains.zalssm_data_domain import User
+from data_domains.yeongsugori_data_domain import User
 from models.database.database_model import Mongo_Database
 
 

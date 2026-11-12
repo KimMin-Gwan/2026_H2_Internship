@@ -1,4 +1,4 @@
-name: zalssm
+name: yeongsugori
 
 # 시연용 실행: docker compose up --build → http://localhost:8080
 # 밖으로 여는 포트는 nginx(8080) 하나다.

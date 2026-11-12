@@ -19,9 +19,9 @@
 ## 2. 폴더 구조
 
 ```
-zalssm/
+yeongsugori/
 ├─ CLAUDE.md
-├─ docs/  design/
+├─ docs/  design/               (docs/08 = DB 논리 설계, 구현 아님)
 ├─ docker-compose.yml
 ├─ .env.example                 (.env 는 깃에 올리지 않는다)
 ├─ nginx/default.conf
@@ -47,19 +47,20 @@ zalssm/
 │  └─ (글꼴은 npm 패키지 pretendard 를 layout.tsx 에서 불러온다. CDN 사용 안 함)
 ├─ back/
 │  ├─ app/
-│  │  ├─ main.py                 ZALSSM_Server: DB 연결, view 조립, FastAPI 앱 생성. 개발은 이 폴더에서 python main.py
+│  │  ├─ main.py                 YEONGSUGORI_Server: DB 연결, view 조립, FastAPI 앱 생성. 개발은 이 폴더에서 python main.py
 │  │  ├─ scripts/seed.py         시연용 데모 계정·내역 (python -m scripts.seed)
 │  │  ├─ views/                  API 경로 + 요청 클래스. master_view.py, core_view.py, sign_view.py, user_view.py,
 │  │  │                          transaction_view.py, stats_view.py, receipt_view.py
 │  │  ├─ controllers/            기능별 흐름. core_controller.py, sign_controller.py, ... (view와 1:1)
 │  │  ├─ models/                 규칙·DB 접근·응답 데이터. base_model.py, core_model.py, sign_model.py, ...
 │  │  │  └─ database/            database_model.py (Mongo_Database)
-│  │  ├─ data_domains/           DB 문서 모양. base_domain.py, zalssm_data_domain.py (User, Transaction, Receipt)
+│  │  ├─ data_domains/           DB 문서 모양. base_domain.py, yeongsugori_data_domain.py (User, Transaction, Receipt)
 │  │  ├─ utils/                  head_parser.py, request_manager.py(요청 도우미, 로그인 확인), jwt_manager.py, password.py,
 │  │  │                          validator.py, date_util.py, image_util.py(이미지 형식 확인·전처리)
 │  │  ├─ others/                 config.py (환경 변수), constants.py (카테고리)
-│  │  ├─ services/ocr/           client.py(mock/OpenAI 호출), prompt.py(v3), schema.py, mock.py, postprocess.py, errors.py
+│  │  ├─ services/ocr/           client.py(mock/OpenAI 호출), prompt.py(v3), schema.py, mock.py, postprocess.py, errors.py, classify.py(M10)
 │  │  └─ storage/                base.py(저장소 약속), local.py(로컬 디스크), __init__.py(서버가 같이 쓰는 storage 하나)
+│  ├─ ml/                     (M10, 선택) train.py, data/items.csv, data/eval.csv, model.joblib
 │  ├─ tests/
 │  ├─ requirements.txt
 │  └─ Dockerfile
@@ -93,7 +94,7 @@ zalssm/
 
 ## 5. 인증 구조
 
-- 로그인 성공 시 서버가 JWT(`{"uid": ..., "exp": ...}`, HS256, 키는 `.env` 의 `JWT_SECRET_KEY`)를 만들어 쿠키 `zalssm_token` 으로 내려준다. 서버는 로그인 상태를 DB에 저장하지 않는다.
+- 로그인 성공 시 서버가 JWT(`{"uid": ..., "exp": ...}`, HS256, 키는 `.env` 의 `JWT_SECRET_KEY`)를 만들어 쿠키 `yeongsugori_token` 으로 내려준다. 서버는 로그인 상태를 DB에 저장하지 않는다.
 - 요청이 오면 `RequestManager` 가 쿠키의 JWT 서명과 만료를 확인하고 `uid` 로 사용자를 찾는다. 서명이 틀리거나, 만료되었거나, 사용자가 없으면(탈퇴) HTTP 401.
 - 로그아웃은 쿠키를 지운다. 토큰은 서버에 없으므로 따로 지울 것이 없다.
 - 쿠키 속성: `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age=7일`. `Secure` 는 `COOKIE_SECURE=true` 일 때만 (LAN HTTP 시연에서는 false).
@@ -125,7 +126,7 @@ docker compose up --build
 
 ```
 MONGODB_URI=                  # Atlas 주소 (mongodb+srv://...). 비우면 이 PC의 mongo
-MONGODB_DB=zalssm
+MONGODB_DB=yeongsugori
 JWT_SECRET_KEY=              # 길고 임의의 문자열. 비워 두면 서버가 시작하지 않는다
 JWT_EXPIRE_DAYS=7
 COOKIE_SECURE=false
@@ -182,7 +183,7 @@ compose에서 nginx는 `8080:80` 으로 연다. back/front 포트는 호스트�
 | back | `./back` (python slim + uvicorn) | 내부 8000 | `uploads:/data/uploads` |
 | mongo | mongo:7, `profiles: [local-db]` (Atlas를 안 쓸 때만) | 127.0.0.1:27017 (이 PC만) | `mongo_data` |
 
-기본은 Atlas다. `.env` 의 `MONGODB_URI` 에 Atlas 주소를 넣으면 개발 서버·docker·테스트(DB 이름 `zalssm_test`)가 모두 그 주소를 쓴다. Atlas 없이 하려면 `MONGODB_URI` 를 비우고 `docker compose --profile local-db up --build` 로 mongo 컨테이너를 함께 켠다(compose가 `mongodb://mongo:27017` 을 넣는다).
+기본은 Atlas다. `.env` 의 `MONGODB_URI` 에 Atlas 주소를 넣으면 개발 서버·docker·테스트(DB 이름 `yeongsugori_test`)가 모두 그 주소를 쓴다. Atlas 없이 하려면 `MONGODB_URI` 를 비우고 `docker compose --profile local-db up --build` 로 mongo 컨테이너를 함께 켠다(compose가 `mongodb://mongo:27017` 을 넣는다).
 
 ## 10. 보안 체크리스트 (4주차 수업 연계)
 

@@ -10,16 +10,16 @@ from datetime import datetime, timedelta, timezone
 
 from PIL import Image, ImageDraw
 
-from data_domains.zalssm_data_domain import Receipt, Transaction, User
+from data_domains.yeongsugori_data_domain import Receipt, Transaction, User
 from models import Mongo_Database
 from others import config
 from services.ocr.mock import receipt_result
 from storage import storage
 from utils.password import hash_password
 
-DEMO_EMAIL = "demo@zalssm.test"
+DEMO_EMAIL = "demo@yeongsugori.test"
 DEMO_PASSWORD = "demo1234a"
-DEMO_NICKNAME = "잘쓰는사람"
+DEMO_NICKNAME = "기록하는사람"
 MERCHANT = "한빛마트 경산점"
 
 # 11월 (H1 시안), 화면 위에서 아래 순서. 마지막 값이 True 면 11월 2일 영수증 품목이다 (할인은 음수)

@@ -17,7 +17,7 @@ def test_health():
 
 def test_health_db_down():
     # 아무것도 없는 포트로 연결해 DB가 꺼진 상황을 만든다.
-    model = HealthModel(database=Mongo_Database(uri="mongodb://localhost:1", db_name="zalssm_test"))
+    model = HealthModel(database=Mongo_Database(uri="mongodb://localhost:1", db_name="yeongsugori_test"))
     model.check_health()
     body = model.get_response_form_data(Head_Parser())["body"]
     assert body == {"result": False, "detail": "DB에 연결하지 못했습니다", "error_code": "server", "status": "db_error"}

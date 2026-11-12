@@ -14,11 +14,11 @@ const figure = (s) => `
 </figure>`;
 
 const gallery = `<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><title>ZALSSM 모바일 시안</title>
+<html lang="ko"><head><meta charset="utf-8"><title>YEONGSUGORI 모바일 시안</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{margin:0;background:#E9EEEC;font-family:${FONT};color:${C.ink}} h2{font:800 26px ${FONT};margin:56px 0 20px} .row{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start}</style></head>
 <body><div style="padding:48px 56px 80px">
-<h1 style="font:800 36px ${FONT};margin:0">ZALSSM 모바일 시안</h1>
+<h1 style="font:800 36px ${FONT};margin:0">YEONGSUGORI 모바일 시안</h1>
 <p style="font:500 15px ${FONT};color:${C.ink2};margin:8px 0 0">기준 화면 390 x 844 · 화면 ID(A1, H1 ...)는 docs/02-features-and-screens.md 와 같습니다 · 목업 데이터는 구현용 시드가 아닙니다</p>
 <h2>디자인 시스템</h2>
 <div style="width:1280px;box-shadow:0 8px 32px rgba(18,36,31,.12);border:1px solid #CFD9D4;background:#fff" data-shot="DS-design-system">${designSystem()}</div>
@@ -64,10 +64,10 @@ fs.mkdirSync(CV, { recursive: true });
 const boards = {}, order = [], notes = {};
 let y = 0;
 // design system = entry
-fs.writeFileSync(path.join(CV, "Main.dc.html"), dc("ZALSSM 디자인 시스템", designSystem(), 1280, 1660));
+fs.writeFileSync(path.join(CV, "Main.dc.html"), dc("YEONGSUGORI 디자인 시스템", designSystem(), 1280, 1660));
 boards["Main.dc.html"] = { x: 0, y: 0, w: 1280, h: 1660, title: "디자인 시스템" };
 order.push("Main.dc.html");
-notes["t-ds"] = { x: 0, y: -260, text: "ZALSSM 디자인 시스템", kind: "title1", maxW: 1280 };
+notes["t-ds"] = { x: 0, y: -260, text: "YEONGSUGORI 디자인 시스템", kind: "title1", maxW: 1280 };
 y = 1660 + 120 + 260;
 let n = 0;
 GROUPS.forEach((g, gi) => {
@@ -81,6 +81,6 @@ GROUPS.forEach((g, gi) => {
   notes["t-" + gi] = { x: 0, y: y - 260, text: g, kind: "title1", maxW: Math.max(390, list.length * 470 - 80) };
   y += 844 + 120 + 260;
 });
-const canvas = { v: 3, createdOnFiles: { v: 1, at: new Date().toISOString().replace(/\.\d+Z$/, "Z") }, title: "ZALSSM 모바일 UI", launch: { view: "canvas" }, pages: [], boards, order, notes, designSystems: [] };
+const canvas = { v: 3, createdOnFiles: { v: 1, at: new Date().toISOString().replace(/\.\d+Z$/, "Z") }, title: "YEONGSUGORI 모바일 UI", launch: { view: "canvas" }, pages: [], boards, order, notes, designSystems: [] };
 fs.writeFileSync(path.join(CV, "canvas.json"), JSON.stringify(canvas, null, 1));
 console.log("screens:", SCREENS.length, "| month exp/inc:", EXP, INC, "| files:", order.length);

@@ -8,7 +8,7 @@
 | M | 내용 | 완료 기준 |
 |---|---|---|
 | M0 | 저장소 뼈대: 폴더, `.gitignore`, `.env.example`, `docker-compose.yml`, nginx, 빈 back/front가 `docker compose up` 으로 뜬다 | `http://localhost:8080` 에서 프론트 첫 화면, `/api/health` 가 `ok` |
-| M1 | 백엔드 기반(슈퍼노바 구조): `ZALSSM_Server`, `Mongo_Database`, `BaseModel` 응답 모양(03 문서 1절), `RequestManager`, data_domains, 카테고리 상수, `/meta/get_categories`, `/health` | 테스트 통과, 응답이 `{header, body: {result, ...}}` 모양 |
+| M1 | 백엔드 기반(슈퍼노바 구조): `YEONGSUGORI_Server`, `Mongo_Database`, `BaseModel` 응답 모양(03 문서 1절), `RequestManager`, data_domains, 카테고리 상수, `/meta/get_categories`, `/health` | 테스트 통과, 응답이 `{header, body: {result, ...}}` 모양 |
 | M2 | **auth 모듈**: 가입·로그인·로그아웃·get_me, JWT 쿠키, `RequestManager` 로그인 확인 | 쿠키로 `/auth/get_me` 성공, 만료·삭제 시 401 |
 | M3 | 내역 CRUD + 월 조회/요약 + 통계 API | 03 문서 예시와 같은 응답, 다른 사용자 데이터 `not_found` |
 | M4 | 프론트 기반: 토큰, 컴포넌트(06), `_lib/api.ts`(오류 처리, 401 전역 처리), 레이아웃·탭, 토스트 | 컴포넌트 시안과 일치 |
@@ -17,23 +17,26 @@
 | M7 | 영수증: 저장소·전처리·mock OCR·후처리·receipts API → O1~O5 → 저장 | mock으로 촬영 → 결과 수정 → 저장 → 홈에 5건 |
 | M8 | 실제 OCR 연결(`OCR_MODE=openai`), 프롬프트 v3, 제한·타임아웃 | 실제 영수증으로 품목 인식, 오류 코드별 화면 |
 | M9 | 시연 마무리: `scripts/seed.py`, README, 휴대폰 접속 점검, QA 체크리스트 수행 | 아래 4절 전부 통과 |
+| M10 | **(선택) 카테고리 분류 모델**: `back/ml/` 데이터·학습·평가, `classify.py`, `CATEGORY_MODE` (05 문서 8절) | 평가 정확도 표 기록. 85% 이상이면 sklearn 채택, 아니면 api 유지 |
 
 M7까지는 API 키 없이 완성할 수 있다. M8은 `OPENAI_API_KEY` 가 준비된 뒤에 진행한다.
+M10은 M8 이후에 진행하고, 일정이 부족하면 건너뛴다 (M9 시연 마무리를 먼저 끝내도 된다). `scikit-learn`, `joblib` 은 M10에서만 `requirements.txt` 에 추가한다.
 
 ## 2. 교육·과제용 구조 요구
 
 - **auth 모듈 독립**: 인증 관련 코드는 `views/sign_view.py`, `controllers/sign_controller.py`, `models/sign_model.py`, `utils/request_manager.py`(JWT 확인), 프론트 `(auth)/` 와 `_lib/session.ts` 에 모은다. 학생이 "로그인"을 과제로 다시 구현할 수 있도록 다른 모듈은 auth 내부 구현에 의존하지 않고 `RequestManager` 의 로그인 확인(로그인한 사용자 `uid`) 하나만 쓰게 한다.
 - 각 모듈 맨 위에 **한 줄 주석**으로 역할을 적는다 (수업에서 코드 리뷰할 때 사용).
 - 불필요한 라이브러리를 추가하지 않는다. 상태 관리 라이브러리, UI 키트, 차트 라이브러리 금지(도넛은 SVG 직접).
-- 예제 데이터용 `back/app/scripts/seed.py`: 데모 계정(`demo@zalssm.test` / `demo1234a`)과 시안과 비슷한 11월·10월 내역을 넣는다. 실행 전에 이미 있으면 건너뛴다.
+- 예제 데이터용 `back/app/scripts/seed.py`: 데모 계정(`demo@yeongsugori.test` / `demo1234a`)과 시안과 비슷한 11월·10월 내역을 넣는다. 실행 전에 이미 있으면 건너뛴다.
 
 ## 3. 테스트
 
-### 백엔드 (pytest, 별도 DB `zalssm_test`)
+### 백엔드 (pytest, 별도 DB `yeongsugori_test`)
 - auth: 가입 성공/이메일 중복/약한 비밀번호, 로그인 성공/실패 메시지, 로그아웃 후 `get_me` 401, 만료된 토큰 401, 서명이 틀린 토큰 401, 탈퇴한 사용자의 토큰 401
 - 내역: 생성/조회/수정/삭제, 월 경계(`2026-11-30`, `2026-12-01`), 요약 합계, **타인 리소스 `not_found`**
 - 통계: 카테고리 합계·비율·정렬, 0원 카테고리 제외, 전월 대비, 음수 지출(할인) 반영
 - 영수증: mock 시나리오 4종, 후처리(할인 품목 생성, 불일치 판정, 카테고리 보정, 품목 0개), confirm 일괄 저장(원자성), 이미 confirmed 재호출 `bad_request`
+- 분류 모델(M10): 모델 파일이 없으면 api 모드로 동작, 확률이 낮으면 API 카테고리 유지, 예측 결과가 항상 카테고리 상수 안에 있음
 - 업로드 검증: 크기 초과 `file_too_large`, 이미지 아닌 파일 `unsupported_media`, 호출 제한 `rate_limited`
 - 탈퇴: 관련 데이터·이미지 파일 삭제 확인
 
@@ -72,3 +75,4 @@ M7까지는 API 키 없이 완성할 수 있다. M8은 `OPENAI_API_KEY` 가 준�
 - 문서에 없는 기능(예산, 반복, 소셜 로그인) 추가
 - DB 문서에 중첩 객체 사용
 - 한 파일에 모든 코드 몰아넣기 (교육용 구조 훼손)
+- `docs/08-db-design.md` 의 SQL로 데이터베이스를 만들거나 SQL 라이브러리(ORM 포함) 추가 (구현 DB는 MongoDB뿐)

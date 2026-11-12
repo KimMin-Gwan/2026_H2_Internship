@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from data_domains.zalssm_data_domain import Transaction
+from data_domains.yeongsugori_data_domain import Transaction
 from models.base_model import BaseModel
 from others.constants import EXPENSE_CATEGORIES, INCOME_CATEGORIES
 from utils.date_util import is_valid_day, is_valid_month, month_range

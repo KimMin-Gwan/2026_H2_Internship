@@ -71,7 +71,7 @@ export function HomeView() {
     <main>
       <div className={s.brand}>
         <LogoMark size={28} />
-        <span className={s.brandName}>잘씀</span>
+        <span className={s.brandName}>영수고리</span>
       </div>
       <MonthSelector month={month} onChange={changeMonth} />
       <SummaryCard monthLabel={formatMonthShort(month)} totalExpense={summary.total_expense}

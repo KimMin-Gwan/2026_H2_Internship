@@ -1,4 +1,4 @@
-// ZALSSM design source: tokens + helpers. All styles are emitted inline (needed for the Design canvas).
+// YEONGSUGORI design source: tokens + helpers. All styles are emitted inline (needed for the Design canvas).
 const React = require("react");
 const RDS = require("react-dom/server");
 const lu = require("react-icons/lu");

@@ -1,7 +1,7 @@
 # 2026_H2_Internship
 2026 영남대학교 기업 연계형 인턴쉽 과제 자료
 
-## ZALSSM (잘씀)
+## 영수고리 (YEONGSUGORI)
 
 영수증 사진 한 장으로 지출을 기록하는 모바일 웹 가계부. 현장실습 교육용 레퍼런스 시스템이다.
 
@@ -40,7 +40,7 @@ docker compose up --build
 docker compose exec back python -m scripts.seed
 ```
 
-데모 계정: `demo@zalssm.test` / `demo1234a`
+데모 계정: `demo@yeongsugori.test` / `demo1234a`
 
 이 PC에서는 `http://localhost:8080` 으로 접속한다.
 
@@ -51,7 +51,7 @@ docker compose exec back python -m scripts.seed
 3. Windows 방화벽에서 TCP 8080 인바운드를 허용한다. **관리자 권한** PowerShell에서 한 번만 실행한다.
 
 ```powershell
-New-NetFirewallRule -DisplayName "ZALSSM 8080" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
+New-NetFirewallRule -DisplayName "YEONGSUGORI 8080" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
 ```
 
 4. 휴대폰 브라우저에서 `http://<PC의 IP>:8080` 으로 접속한다.
@@ -75,7 +75,7 @@ docker compose down
 2. **Database Access** 에서 DB 사용자를 만든다. 권한은 "Read and write to any database".
 3. **Network Access** 에서 접속을 허용할 IP를 넣는다. 시연하는 PC의 공인 IP를 넣거나("Add Current IP Address"), 수업 중에만 `0.0.0.0/0`(어디서나)을 쓰고 끝나면 지운다. docker 안의 백엔드도 같은 PC의 IP로 나간다.
 4. 클러스터의 **Connect > Drivers** 에서 연결 주소(`mongodb+srv://...`)를 복사해 `.env` 의 `MONGODB_URI=` 뒤에 붙인다. `<password>` 를 2번의 비밀번호로 바꾼다. 비밀번호에 `@ : / ? #` 같은 문자가 있으면 URL 인코딩해야 하므로 영문·숫자만 쓰는 것이 편하다.
-5. DB 이름은 주소가 아니라 `.env` 의 `MONGODB_DB`(기본 `zalssm`)로 정한다. 테스트는 같은 클러스터의 `zalssm_test` 를 쓴다.
+5. DB 이름은 주소가 아니라 `.env` 의 `MONGODB_DB`(기본 `yeongsugori`)로 정한다. 테스트는 같은 클러스터의 `yeongsugori_test` 를 쓴다.
 
 연결 확인: 서버를 켜고 `http://localhost:8080/api/health`(docker) 또는 `http://localhost:8000/api/health`(개발)에서 `"status":"ok"` 가 보이면 된다. `db_error` 면 IP 허용, 사용자·비밀번호, 주소를 다시 확인한다.
 
@@ -134,5 +134,5 @@ cd back && .venv/Scripts/pytest
 cd front && npm run lint && npm test && npm run build
 ```
 
-- 백엔드 테스트는 `.env` 의 Atlas 주소에 별도 DB `zalssm_test` 로 붙는다(Atlas가 없으면 로컬 mongo). 실제 OpenAI 호출 테스트는 비용이 들어 기본에서 빠지며, 키를 넣은 뒤 `pytest -m live` 로 돌린다.
+- 백엔드 테스트는 `.env` 의 Atlas 주소에 별도 DB `yeongsugori_test` 로 붙는다(Atlas가 없으면 로컬 mongo). 실제 OpenAI 호출 테스트는 비용이 들어 기본에서 빠지며, 키를 넣은 뒤 `pytest -m live` 로 돌린다.
 - 프론트 컴포넌트 모음(개발 전용): `npm run dev` 후 `/dev/components`

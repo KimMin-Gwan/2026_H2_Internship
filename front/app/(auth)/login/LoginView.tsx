@@ -51,8 +51,8 @@ export function LoginView() {
       <div className={s.hero}>
         <div className={s.brand}>
           <LogoMark size={52} background="#fff" color="var(--primary)" />
-          <p className={s.name}>잘씀</p>
-          <p className={s.english}>ZALSSM</p>
+          <p className={s.name}>영수고리</p>
+          <p className={s.english}>YEONGSUGORI</p>
           <p className={s.tagline}>영수증으로 기록하는 가계부</p>
         </div>
         <div className={s.illustration}>
