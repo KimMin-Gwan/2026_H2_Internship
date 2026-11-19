@@ -33,8 +33,8 @@
   text-align: left;
 }
 .row:active { background: var(--bg); }
-.label { flex: 1; font-size: 16px; font-weight: 600; color: var(--ink); }
-.value { font-size: 15px; color: var(--ink-3); }
+.label { flex: 1 0 auto; font-size: 16px; font-weight: 600; color: var(--ink); }
+.value { min-width: 0; font-size: 15px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .danger { color: var(--danger); }
 
 .dialogText { font-size: 14px; line-height: 1.5; color: var(--ink-2); }

@@ -109,7 +109,8 @@ class Transaction(BaseDomain):
 
 class Receipt(BaseDomain):
     def __init__(self, receipt_id="", uid="", image_key="", status="analyzed", merchant=None,
-                 purchased_on=None, total_amount=None, parsed_json="", confidence="", created_at=None):
+                 purchased_on=None, total_amount=None, parsed_json="", confidence="", ocr_provider="", ocr_model="",
+                 created_at=None):
         self.receipt_id = receipt_id
         self.uid = uid
         self.image_key = image_key        # 저장소 키 (예: receipts/{uid}/{uuid}.jpg)
@@ -119,6 +120,8 @@ class Receipt(BaseDomain):
         self.total_amount = total_amount  # 영수증에 적힌 최종 결제액
         self.parsed_json = parsed_json    # 모델이 돌려준 JSON 원문. 객체가 아니라 문자열로 둔다
         self.confidence = confidence      # high | medium | low
+        self.ocr_provider = ocr_provider  # 분석한 AI: mock | openai | claude
+        self.ocr_model = ocr_model        # 모델 이름 (mock 이면 빈 문자열)
         self.created_at: datetime = created_at
 
     def get_id(self):
@@ -134,6 +137,8 @@ class Receipt(BaseDomain):
         self.total_amount = dict_data.get("total_amount", None)
         self.parsed_json = dict_data.get("parsed_json", "")
         self.confidence = dict_data.get("confidence", "")
+        self.ocr_provider = dict_data.get("ocr_provider", "")  # 이 필드가 생기기 전 문서는 빈 문자열
+        self.ocr_model = dict_data.get("ocr_model", "")
         self.created_at = dict_data.get("created_at", None)
         return self
 
@@ -148,5 +153,7 @@ class Receipt(BaseDomain):
             "total_amount": self.total_amount,
             "parsed_json": self.parsed_json,
             "confidence": self.confidence,
+            "ocr_provider": self.ocr_provider,
+            "ocr_model": self.ocr_model,
             "created_at": self.created_at,
         }

@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from models import HealthModel, Mongo_Database
+from others import config
 from utils import Head_Parser
 
 client = TestClient(app)
@@ -28,3 +29,14 @@ def test_get_categories():
     assert body["result"] is True
     assert body["expense"][0] == "식비"
     assert body["income"] == ["급여", "용돈", "기타수입"]
+
+
+def test_get_ocr_engine(monkeypatch):
+    monkeypatch.setattr(config, "OCR_MODE", "mock")
+    body = client.get("/api/meta/get_ocr_engine").json()["body"]
+    assert body == {"result": True, "detail": "", "ocr_provider": "mock", "ocr_model": ""}
+
+    monkeypatch.setattr(config, "OCR_MODE", "claude")
+    monkeypatch.setattr(config, "ANTHROPIC_MODEL", "test-model")
+    body = client.get("/api/meta/get_ocr_engine").json()["body"]
+    assert (body["ocr_provider"], body["ocr_model"]) == ("claude", "test-model")

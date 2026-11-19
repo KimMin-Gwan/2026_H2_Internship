@@ -61,7 +61,3 @@ def get_by_category(items, category):
 print("총합:", get_total(receipts))
 print("카페·간식:", get_by_category(receipts, "카페·간식"))
 
-# 과제
-# 1. 카테고리별 합계를 구하는 함수 get_category_total(items, category) 를 만들어 보세요.
-# 2. 금액이 가장 큰 영수증을 찾는 함수 get_max_receipt(items) 를 만들어 보세요.
-# 3. 가게 이름 목록만 뽑아 리스트로 돌려주는 함수를 만들어 보세요.

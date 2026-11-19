@@ -1,4 +1,4 @@
-# 서버 상태 확인, 카테고리 목록 API 경로 (로그인 불필요)
+# 서버 상태 확인, 카테고리 목록, 영수증 분석 AI API 경로 (로그인 불필요)
 
 from fastapi import FastAPI, Request
 
@@ -35,6 +35,16 @@ class Core_Service_View(Master_View):
             request_manager = RequestManager(request=request, secret_key=self.__jwt_secret_key)
             core_controller = Core_Controller()
             model = core_controller.get_categories(database=self.__database)
+            body_data = model.get_response_form_data(self._head_parser)
+            response = request_manager.make_json_response(body_data=body_data)
+            return response
+
+        # 영수증 분석에 지금 쓰는 AI (mock | openai | claude 와 모델 이름)
+        @self.__app.get(self._endpoint + '/meta/get_ocr_engine', tags=['Core'])
+        def get_ocr_engine(request: Request):
+            request_manager = RequestManager(request=request, secret_key=self.__jwt_secret_key)
+            core_controller = Core_Controller()
+            model = core_controller.get_ocr_engine(database=self.__database)
             body_data = model.get_response_form_data(self._head_parser)
             response = request_manager.make_json_response(body_data=body_data)
             return response

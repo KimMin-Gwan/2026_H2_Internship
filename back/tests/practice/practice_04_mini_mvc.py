@@ -98,7 +98,3 @@ def create(raw_request: dict):
     return model.get_response_form_data()
 
 
-# 과제
-# 1. ReceiptModel 에 delete(receipt_id) 를 만들고, controller 와 view 에 /api/receipt/delete 를 이어 보세요.
-#    (없는 id 는 set_fail("not_found", "영수증을 찾을 수 없습니다"))
-# 2. 어느 단계를 고쳤는지 말해 보세요: 검증 문구 변경 → model, 경로 이름 변경 → view.

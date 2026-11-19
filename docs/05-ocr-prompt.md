@@ -10,7 +10,7 @@ POST /receipt/upload_receipt (image)
  1. 검증: 크기 ≤ MAX_UPLOAD_MB, 매직바이트가 jpeg/png/webp/heic 인지 확인
  2. 전처리: EXIF 방향 보정 후 EXIF 제거, 긴 변 1600px로 축소, JPEG(품질 85)로 변환
  3. 저장: storage.save("receipts/{user}/{uuid}.jpg")
- 4. 분석: OCR_MODE=openai → 모델 호출(구조화 출력), mock → 고정 결과
+ 4. 분석: OCR_MODE=openai 또는 claude → 모델 호출(구조화 출력), mock → 고정 결과
  5. 후처리: 검증·정규화·할인 품목 생성·합계 비교 (4절)
  6. receipts 문서 저장, 응답 반환
 실패(not_a_receipt / ocr_failed / ocr_timeout): 저장한 이미지를 지우고 오류 응답
@@ -19,7 +19,9 @@ POST /receipt/upload_receipt (image)
 - 모델 호출은 `OCR_TIMEOUT_SEC` 안에 끝나야 한다. 초과하면 `OCR_TIMEOUT`.
 - JSON이 깨지거나 스키마에 맞지 않으면 **한 번만 재시도**하고, 그래도 실패하면 `ocr_failed`.
 - API 키와 모델 이름은 환경 변수(`OPENAI_API_KEY`, `OPENAI_MODEL`). 모델 기본값은 `gpt-6-luna`(2026-11 기준 이미지 입력을 받는 가장 저렴한 모델)이다.
-- 호출은 OpenAI **Responses API**(`POST /v1/responses`) 한 번이다. 이미지는 base64 data URL(`input_image`), 스키마는 `text.format`(`json_schema`, `strict: true`)에 넣는다. SDK 없이 `httpx` 로 보낸다(요청 모양을 수업에서 그대로 보여 주기 위함).
+- `OCR_MODE=openai`: 호출은 OpenAI **Responses API**(`POST /v1/responses`) 한 번이다. 이미지는 base64 data URL(`input_image`), 스키마는 `text.format`(`json_schema`, `strict: true`)에 넣는다. SDK 없이 `httpx` 로 보낸다(요청 모양을 수업에서 그대로 보여 주기 위함).
+- `OCR_MODE=claude`: 호출은 Claude **Messages API**(`POST /v1/messages`) 한 번이다. 환경 변수는 `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`(기본 `claude-haiku-5-5`). 이미지는 base64 블록(`type: image`), 시스템 프롬프트는 `system`, 스키마는 `output_config.format`(`json_schema`)에 넣는다. `stop_reason` 이 `refusal`·`max_tokens` 이면 `ocr_failed`.
+- 두 모델은 **같은 프롬프트(`prompt.py`)와 같은 스키마(`schema.py`)** 를 쓴다. 다른 것은 주소, 인증 헤더, 요청·응답 모양뿐이고 모두 `client.py` 안에 있다. 후처리와 화면은 모델과 상관없이 같다.
 - 시간 제한 `OCR_TIMEOUT_SEC` 는 재시도까지 합친 전체 시간이다.
 
 ## 2. 모델 출력 스키마 (JSON Schema, strict)

@@ -29,7 +29,7 @@
 - 데모 데이터: `docker compose exec back python -m scripts.seed` (demo@yeongsugori.test / demo1234a, 있으면 건너뜀)
 - 백엔드 개발: 처음 한 번 `cd back && python -m venv .venv && .venv/Scripts/pip install -r requirements.txt`, 켤 때는 `cd back/app && ../.venv/Scripts/python main.py` (`.env` 를 스스로 읽는다. `JWT_SECRET_KEY` 필요, `MONGODB_URI`·`UPLOAD_DIR` 는 비워 두면 localhost·back/uploads)
 - 백엔드 import: `back/app` 이 기준 폴더다. 슈퍼노바처럼 `from models import ...`, `from utils import ...` 로 쓰고 `app.` 을 붙이지 않는다
-- 백엔드 테스트: `cd back && .venv/Scripts/pytest` (`.env` 의 Atlas 주소에 DB `yeongsugori_test` 로 붙는다. Atlas가 없으면 `docker compose up -d mongo` 로 로컬 mongo를 켠다). 실제 OpenAI 호출 테스트는 기본에서 빠지고 `pytest -m live` 로만 돈다(`OPENAI_API_KEY` 필요, 비용 발생)
+- 백엔드 테스트: `cd back && .venv/Scripts/pytest` (`.env` 의 Atlas 주소에 DB `yeongsugori_test` 로 붙는다. Atlas가 없으면 `docker compose up -d mongo` 로 로컬 mongo를 켠다). 실제 모델 호출 테스트는 기본에서 빠지고 `pytest -m live` 로만 돈다(`OPENAI_API_KEY` 또는 `ANTHROPIC_API_KEY` 필요, 키가 없는 쪽은 건너뛴다, 비용 발생)
 - 프론트 개발: `cd front && npm install && npm run dev` (`/api` 는 `localhost:8000` 으로 넘어간다)
 - 프론트 검사: `cd front && npm run lint && npm test && npm run build` (`npm test` 는 `_lib/*.test.ts` 단위 테스트)
 - 컴포넌트 모음(개발 전용): `npm run dev` 후 `/dev/components`. 배포 빌드에서는 404

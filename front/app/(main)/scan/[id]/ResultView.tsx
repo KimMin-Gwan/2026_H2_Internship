@@ -4,7 +4,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, PencilLine, Plus, ReceiptText, Trash2 } from 'lucide-react';
+import { Calendar, PencilLine, Plus, ReceiptText, Sparkles, Trash2 } from 'lucide-react';
 import { ActionBar, ActionBarSpacer } from '../../../_components/ActionBar';
 import { Banner } from '../../../_components/Banner';
 import { Button } from '../../../_components/Button';
@@ -17,6 +17,7 @@ import { Skeleton } from '../../../_components/Skeleton';
 import { useToast } from '../../../_components/Toast';
 import { ApiError, confirmReceipt, errorText, getReceipt, type Receipt, type ReceiptItem } from '../../../_lib/api';
 import { formatDate, formatWon, todayKorea } from '../../../_lib/format';
+import { ocrEngineLabel } from '../../../_lib/ocrEngine';
 import { CategoryChoices } from './CategoryChoices';
 import { ItemSheet } from './ItemSheet';
 import s from './result.module.css';
@@ -66,6 +67,7 @@ function ResultForm({ receipt }: { receipt: Receipt }) {
   const itemsSum = items.reduce((total, item) => total + item.amount, 0);
   const mismatch = receipt.total_amount !== null && itemsSum !== receipt.total_amount;
   const canSave = items.length > 0 && items.every((item) => item.name.trim() && item.amount !== 0);
+  const engine = ocrEngineLabel(receipt.ocr_provider, receipt.ocr_model); // 이 품목을 읽어 낸 AI
 
   function saveItem(next: EditItem) {
     const exists = items.some((item) => item.key === next.key);
@@ -132,7 +134,15 @@ function ResultForm({ receipt }: { receipt: Receipt }) {
           : <Banner variant="success">품목 합계가 영수증 합계와 일치합니다</Banner>}
       </div>
 
-      <p className={s.count}>품목 {items.length}개</p>
+      <div className={s.countRow}>
+        <p className={s.count}>품목 {items.length}개</p>
+        {engine && (
+          <span className={s.engine} aria-label={`분석 AI ${engine}`}>
+            <Sparkles size={13} aria-hidden="true" />
+            <span className={s.ellipsis}>{engine}</span>
+          </span>
+        )}
+      </div>
       {items.length > 0 && (
         <section className={s.items}>
           {items.map((item) => (

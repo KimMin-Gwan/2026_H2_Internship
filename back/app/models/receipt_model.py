@@ -8,7 +8,7 @@ from data_domains.yeongsugori_data_domain import Receipt, Transaction
 from models.base_model import BaseModel
 from others import config
 from others.constants import EXPENSE_CATEGORIES
-from services.ocr.client import analyze_receipt
+from services.ocr.client import analyze_receipt, get_ocr_engine
 from services.ocr.errors import OcrError
 from services.ocr.postprocess import MAX_ITEMS, MAX_NAME, postprocess
 from storage import storage
@@ -40,6 +40,7 @@ class ReceiptModel(BaseModel):
         image_key = f"receipts/{self._user.uid}/{receipt_id}.jpg"
         storage.save(key=image_key, data=jpeg)
 
+        engine = get_ocr_engine()  # 어떤 AI로 분석했는지 결과와 함께 남긴다
         try:
             raw = analyze_receipt(jpeg)
             result = postprocess(raw)
@@ -52,9 +53,10 @@ class ReceiptModel(BaseModel):
         receipt = Receipt(receipt_id=receipt_id, uid=self._user.uid, image_key=image_key, status="analyzed",
                           merchant=result["merchant"], purchased_on=result["purchased_on"],
                           total_amount=result["total_amount"], parsed_json=json.dumps(raw, ensure_ascii=False),
-                          confidence=result["confidence"], created_at=datetime.now(timezone.utc))
+                          confidence=result["confidence"], ocr_provider=engine["ocr_provider"],
+                          ocr_model=engine["ocr_model"], created_at=datetime.now(timezone.utc))
         self._database.add_new_data(target="receipts", new_data=receipt.get_dict_form_data())
-        self.__body = {"receipt": {"receipt_id": receipt_id, "status": "analyzed", **result}}
+        self.__body = {"receipt": {"receipt_id": receipt_id, "status": "analyzed", **result, **engine}}
         self.set_success()
 
     # 분석 결과 다시 보기. 품목은 저장해 둔 모델 원문을 다시 후처리해서 만든다.
@@ -67,7 +69,8 @@ class ReceiptModel(BaseModel):
                       "items": [], "items_sum": 0, "mismatch": False, "confidence": receipt.confidence}
         else:
             result = postprocess(json.loads(receipt.parsed_json))
-        self.__body = {"receipt": {"receipt_id": receipt.receipt_id, "status": receipt.status, **result}}
+        self.__body = {"receipt": {"receipt_id": receipt.receipt_id, "status": receipt.status, **result,
+                                   "ocr_provider": receipt.ocr_provider, "ocr_model": receipt.ocr_model}}
         self.set_success()
 
     def load_receipt_image(self, receipt_id: str) -> None:

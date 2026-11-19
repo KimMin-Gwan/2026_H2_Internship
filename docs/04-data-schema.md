@@ -48,6 +48,8 @@ ID는 슈퍼노바처럼 컬렉션마다 **문자열 필드**로 둔다(`uid`, `
 | total_amount | int \| null | 영수증에 적힌 최종 결제액 |
 | parsed_json | string | 모델이 돌려준 JSON 원문(디버깅·프롬프트 개선용). 객체가 아니라 **문자열** |
 | confidence | string | `high` \| `medium` \| `low` |
+| ocr_provider | string | 분석한 AI: `mock` \| `openai` \| `claude` |
+| ocr_model | string | 모델 이름 (예: `claude-haiku-5-5`). `mock` 이면 빈 문자열 |
 | created_at | datetime | |
 
 인덱스: `receipt_id` unique, `(uid, created_at desc)`.

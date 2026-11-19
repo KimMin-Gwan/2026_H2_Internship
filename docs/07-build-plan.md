@@ -15,11 +15,11 @@
 | M5 | 프론트 기초 기능: A1, A2, S1, S2, 닉네임, S3 다이얼로그 | 가입 → 로그인 → 설정 변경 → 로그아웃 |
 | M6 | 프론트 핵심: H1, H1e, H2, H3, H4, N1, N2 | 입력한 내역이 홈·분석에 반영 |
 | M7 | 영수증: 저장소·전처리·mock OCR·후처리·receipts API → O1~O5 → 저장 | mock으로 촬영 → 결과 수정 → 저장 → 홈에 5건 |
-| M8 | 실제 OCR 연결(`OCR_MODE=openai`), 프롬프트 v3, 제한·타임아웃 | 실제 영수증으로 품목 인식, 오류 코드별 화면 |
+| M8 | 실제 OCR 연결(`OCR_MODE=openai` 또는 `claude`), 프롬프트 v3, 제한·타임아웃 | 실제 영수증으로 품목 인식, 오류 코드별 화면 |
 | M9 | 시연 마무리: `scripts/seed.py`, README, 휴대폰 접속 점검, QA 체크리스트 수행 | 아래 4절 전부 통과 |
 | M10 | **(선택) 카테고리 분류 모델**: `back/ml/` 데이터·학습·평가, `classify.py`, `CATEGORY_MODE` (05 문서 8절) | 평가 정확도 표 기록. 85% 이상이면 sklearn 채택, 아니면 api 유지 |
 
-M7까지는 API 키 없이 완성할 수 있다. M8은 `OPENAI_API_KEY` 가 준비된 뒤에 진행한다.
+M7까지는 API 키 없이 완성할 수 있다. M8은 `OPENAI_API_KEY` 또는 `ANTHROPIC_API_KEY` 가 준비된 뒤에 진행한다.
 M10은 M8 이후에 진행하고, 일정이 부족하면 건너뛴다 (M9 시연 마무리를 먼저 끝내도 된다). `scikit-learn`, `joblib` 은 M10에서만 `requirements.txt` 에 추가한다.
 
 ## 2. 교육·과제용 구조 요구

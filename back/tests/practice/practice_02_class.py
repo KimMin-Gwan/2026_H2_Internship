@@ -68,7 +68,3 @@ class ReceiptModel(BaseModel):
 model = ReceiptModel()
 model.create("GS25", 3200)
 print(model.get_response_form_data())
-
-# 과제
-# 1. TransportReceipt(Receipt) 를 만들고 get_summary 를 다시 정의해 보세요. (예: 교통 영수증은 노선 이름을 같이 출력)
-# 2. receipts 리스트에서 get_fee() 의 합계를 구해 보세요.

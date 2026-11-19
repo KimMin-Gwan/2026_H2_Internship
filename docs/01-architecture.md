@@ -132,10 +132,12 @@ JWT_EXPIRE_DAYS=7
 COOKIE_SECURE=false
 UPLOAD_DIR=                   # 비우면 docker는 /data/uploads(볼륨), 개발 서버는 back/uploads
 MAX_UPLOAD_MB=10
-OCR_MODE=mock                 # mock | openai
+OCR_MODE=mock                 # mock | openai | claude
 OCR_MOCK_SCENARIO=ok          # ok | mismatch | not_receipt | timeout  (mock일 때만)
 OPENAI_API_KEY=
 OPENAI_MODEL=                 # 비우면 gpt-6-luna (이미지 입력 + JSON 스키마 출력, 2026-11 기준 가장 저렴)
+ANTHROPIC_API_KEY=            # OCR_MODE=claude 일 때만. Claude Console 에서 만든다
+ANTHROPIC_MODEL=              # 비우면 claude-haiku-5-5
 OCR_TIMEOUT_SEC=30
 SCAN_LIMIT_PER_HOUR=20
 NEXT_PUBLIC_APP_VERSION=1.0.0

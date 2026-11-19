@@ -1,6 +1,6 @@
-# 서버 상태 확인, 카테고리 목록 — 모델을 만들고 필요한 동작을 시킨 뒤 돌려준다.
+# 서버 상태 확인, 카테고리 목록, 영수증 분석 AI — 모델을 만들고 필요한 동작을 시킨 뒤 돌려준다.
 
-from models import Mongo_Database, HealthModel, CategoryModel
+from models import Mongo_Database, HealthModel, CategoryModel, OcrEngineModel
 
 
 class Core_Controller:
@@ -14,4 +14,10 @@ class Core_Controller:
     def get_categories(self, database: Mongo_Database) -> CategoryModel:
         model = CategoryModel(database=database)
         model.set_categories()
+        return model
+
+    # 영수증 분석에 지금 쓰는 AI
+    def get_ocr_engine(self, database: Mongo_Database) -> OcrEngineModel:
+        model = OcrEngineModel(database=database)
+        model.set_ocr_engine()
         return model

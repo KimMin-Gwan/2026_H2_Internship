@@ -26,7 +26,7 @@ cp .env.example .env
 
 - `.env` 를 열어 `JWT_SECRET_KEY` 를 길고 임의의 문자열로 채운다. 비어 있으면 백엔드가 시작하지 않는다.
 - `.env` 의 `MONGODB_URI` 에 MongoDB Atlas 연결 주소를 넣는다 (아래 "MongoDB Atlas 준비").
-- 영수증 분석은 기본이 `OCR_MODE=mock`(고정 결과, 키 불필요)이다. 실제 분석을 쓰려면 `OCR_MODE=openai` 로 바꾸고 `OPENAI_API_KEY` 를 채운다.
+- 영수증 분석은 기본이 `OCR_MODE=mock`(고정 결과, 키 불필요)이다. 실제 분석을 쓰려면 `OCR_MODE=openai` 로 바꾸고 `OPENAI_API_KEY` 를 채우거나, `OCR_MODE=claude` 로 바꾸고 `ANTHROPIC_API_KEY` 를 채운다.
 
 ### 2. 실행
 
@@ -83,7 +83,7 @@ Atlas 없이 하려면 `MONGODB_URI` 를 비우고 `docker compose --profile loc
 
 ## 개인정보 안내
 
-- `OCR_MODE=openai` 이면 촬영한 영수증 이미지(축소·메타데이터 제거 후)가 OpenAI API로 전송된다.
+- `OCR_MODE=openai` 이면 촬영한 영수증 이미지(축소·메타데이터 제거 후)가 OpenAI API로, `OCR_MODE=claude` 이면 Claude API로 전송된다.
 - 영수증 이미지는 로그인한 본인에게만 제공되고, 회원 탈퇴 시 내역·이미지가 모두 삭제된다.
 - 실습에는 개인정보(카드 번호, 전화번호 등)가 없는 영수증을 쓴다.
 

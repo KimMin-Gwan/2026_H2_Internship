@@ -47,6 +47,8 @@ CREATE TABLE receipts (
   total_amount INT          NULL,
   parsed_json  TEXT         NOT NULL,
   confidence   VARCHAR(6)   NOT NULL CHECK (confidence IN ('high', 'medium', 'low')),
+  ocr_provider VARCHAR(10)  NOT NULL,           -- 분석한 AI: mock, openai, claude
+  ocr_model    VARCHAR(50)  NOT NULL,           -- 모델 이름 (mock 이면 빈 문자열)
   created_at   DATETIME     NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

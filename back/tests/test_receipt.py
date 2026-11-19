@@ -62,6 +62,12 @@ def test_upload_ok(user_client):
     assert receipt["items"][1]["quantity"] == 2
     assert receipt["items_sum"] == 14200
     assert receipt["mismatch"] is False
+    # 어떤 AI로 분석했는지 응답과 DB에 남고, 다시 불러와도 같다
+    assert (receipt["ocr_provider"], receipt["ocr_model"]) == ("mock", "")
+    saved = get_test_db()["receipts"].find_one({"receipt_id": receipt["receipt_id"]})
+    assert (saved["ocr_provider"], saved["ocr_model"]) == ("mock", "")
+    again = get_receipt(user_client, receipt["receipt_id"])["receipt"]
+    assert (again["ocr_provider"], again["ocr_model"]) == ("mock", "")
 
 
 def test_saved_image_is_small_jpeg_without_exif(user_client):

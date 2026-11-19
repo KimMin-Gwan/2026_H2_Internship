@@ -1,6 +1,6 @@
 'use client';
 
-// S1 설정 — 프로필, 닉네임·비밀번호 변경으로 가는 줄, 앱 버전, 로그아웃(S3a)·회원 탈퇴(S3b) 다이얼로그 (02 문서 5절)
+// S1 설정 — 프로필, 닉네임·비밀번호 변경으로 가는 줄, 앱 버전·영수증 분석 AI, 로그아웃(S3a)·회원 탈퇴(S3b) 다이얼로그 (02 문서 5절)
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -12,7 +12,8 @@ import { Dialog } from '../../_components/Dialog';
 import { Field } from '../../_components/Field';
 import { Header } from '../../_components/Header';
 import { useToast } from '../../_components/Toast';
-import { ApiError, withdraw } from '../../_lib/api';
+import { ApiError, getOcrEngine, withdraw } from '../../_lib/api';
+import { ocrEngineLabel } from '../../_lib/ocrEngine';
 import { getMe, logout, type User } from '../../_lib/session';
 import s from './settings.module.css';
 
@@ -24,6 +25,7 @@ export function SettingsView() {
   const [user, setUser] = useState<User | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [dialog, setDialog] = useState<'none' | 'logout' | 'withdraw'>('none');
+  const [engine, setEngine] = useState(''); // 서버가 영수증 분석에 쓰는 AI. 불러오지 못하면 줄을 숨긴다
 
   function loadUser() {
     getMe()
@@ -35,6 +37,12 @@ export function SettingsView() {
   }
 
   useEffect(loadUser, []);
+
+  useEffect(() => {
+    getOcrEngine()
+      .then((data) => setEngine(ocrEngineLabel(data.ocr_provider, data.ocr_model)))
+      .catch(() => setEngine(''));
+  }, []);
 
   async function handleLogout() {
     try {
@@ -82,6 +90,12 @@ export function SettingsView() {
           <span className={s.label}>앱 버전</span>
           <span className={s.value}>{APP_VERSION}</span>
         </div>
+        {engine && (
+          <div className={s.row}>
+            <span className={s.label}>영수증 분석 AI</span>
+            <span className={s.value}>{engine}</span>
+          </div>
+        )}
       </Group>
 
       <Group title="계정 관리">

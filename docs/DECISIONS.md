@@ -6,7 +6,7 @@
 
 ### 해야 할 일 (사용자)
 1. **`.env` 의 `JWT_SECRET_KEY`**: 비어 있어 백엔드 컨테이너가 시작하지 않는다. 길고 임의의 문자열로 채운다. 예전 예시에서 남은 `SESSION_TTL_DAYS` 줄은 지우고, `MONGODB_URI`·`UPLOAD_DIR` 는 비워 두는 것이 기본이다.
-2. **OpenAI 실제 호출 확인**: `.env` 에 `OPENAI_API_KEY` 를 넣고 `pytest -m live` 를 한 번 돌린다. 기본 모델 `gpt-6-luna` 가 구조화 출력을 지원하는지 문서에서 직접 확인하지 못했다. 실패하면 `OPENAI_MODEL` 을 `gpt-6.1-terra` 등으로 바꾼다.
+2. **실제 모델 호출 확인**: `.env` 에 `OCR_MODE=claude` 와 `ANTHROPIC_API_KEY` (또는 `OCR_MODE=openai` 와 `OPENAI_API_KEY`)를 넣고 `cd back && .venv/Scripts/pytest -m live` 를 한 번 돌린다. 키가 없는 쪽은 건너뛴다. 실제 호출은 아직 한 번도 확인하지 못했다 (가짜 응답 테스트만 통과). 실패하면 `ANTHROPIC_MODEL`·`OPENAI_MODEL` 을 바꿔 본다.
 3. **휴대폰 QA**: `docs/09-qa-results.md` 3절 (카메라, 화면 키보드, 같은 Wi-Fi 접속).
 
 ### 정해 주면 맞출 것
@@ -97,3 +97,7 @@
 | 2026-11-05 | DB 논리 설계(SQL, ERD)를 `08-db-design.md` 로 추가. 구현은 MongoDB 유지. JWT를 쓰므로 받은 설계의 `sessions` 테이블을 빼고, 대응표를 문자열 ID(`uid` 등)·컬렉션 3개에 맞췄다. ERD 그림(`docs/images/erd*.png`)도 `design/_src/erd.js` 에서 sessions를 빼고 다시 만들었다 | 사용자 + Claude |
 | 2026-11-05 | QA 결과 문서를 `08-qa-results.md` → `09-qa-results.md` 로 옮겼다(08 번호를 DB 설계가 씀) | Claude |
 | 2026-11-05 | 카테고리 분류 scikit-learn 시도(M10). 85% 미만이면 API 분류 유지. 결과가 정해지면 PPT의 AI 항목을 결과에 맞춘다. 아직 시작하지 않음 | 사용자 |
+| 2026-11-19 | 영수증 분석에 Claude API를 더했다: `OCR_MODE=claude`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`(기본 `claude-haiku-5-5`). OpenAI 코드는 그대로 두고 `client.py` 에 Claude 호출을 추가했다. 프롬프트·스키마·후처리는 공통. Max 플랜의 월별 API 크레딧(Claude Console 키)을 쓴다 | 사용자 |
+| 2026-11-19 | `client.py` 의 HTTP 호출을 `_post_json` 한 곳으로 모았다. 응답이 JSON이 아니어도 `ocr_failed` 로 처리한다(전에는 처리되지 않은 예외) | Claude |
+| 2026-11-19 | `config.py` 의 `JWT_SECRET_KEY` 기본값 `qwer1234` 를 지웠다. 기본값이 있으면 `.env` 없이도 알려진 키로 서버가 켜지고, main.py 의 "비어 있으면 멈춘다" 확인이 동작하지 않는다 | Claude |
+| 2026-11-19 | 어떤 AI가 쓰였는지 화면에 표시한다: O3 인식 결과의 품목 수 줄 오른쪽 칩, S1 설정 정보의 `영수증 분석 AI` 줄. 실제 분석은 모델 이름, mock 은 `예시 결과`. `receipts` 에 `ocr_provider`·`ocr_model` 을 저장하고 `GET /meta/get_ocr_engine` 을 더했다. 시안(`design/`)에는 아직 반영하지 않았다 | 사용자 (위치는 Claude) |

@@ -185,7 +185,17 @@ export type Receipt = {
   items_sum: number;
   mismatch: boolean;
   confidence: 'high' | 'medium' | 'low';
+  ocr_provider: string; // 분석한 AI: mock | openai | claude (화면 표시는 _lib/ocrEngine.ts)
+  ocr_model: string;
 };
+
+export type OcrEngine = Pick<Receipt, 'ocr_provider' | 'ocr_model'>;
+
+// 서버가 영수증 분석에 지금 쓰는 AI
+export async function getOcrEngine(): Promise<OcrEngine> {
+  const body = await apiGet('/meta/get_ocr_engine');
+  return { ocr_provider: body.ocr_provider, ocr_model: body.ocr_model };
+}
 
 // 사진을 올리고 분석이 끝날 때까지 기다린다. signal 로 중간에 취소할 수 있다.
 export async function uploadReceipt(image: File, signal: AbortSignal): Promise<Receipt> {

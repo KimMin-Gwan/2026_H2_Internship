@@ -17,7 +17,7 @@ MONGODB_URI = os.getenv("MONGODB_URI") or ""
 MONGODB_DB = os.getenv("MONGODB_DB", "yeongsugori")
 
 # 로그인 토큰(JWT) 서명 키. 코드에 기본값을 두지 않는다 (main.py에서 비어 있으면 멈춘다).
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "qwer1234")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
 JWT_EXPIRE_DAYS = int(os.getenv("JWT_EXPIRE_DAYS", "7"))
 
 # HTTPS로 서비스할 때만 true. LAN HTTP 시연에서는 false
@@ -27,7 +27,7 @@ COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false") == "true"
 UPLOAD_DIR = os.getenv("UPLOAD_DIR") or str(BACK_DIR / "uploads")
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "10"))
 
-# 영수증 분석: mock(고정 결과, 키 불필요) | openai
+# 영수증 분석: mock(고정 결과, 키 불필요) | openai | claude
 OCR_MODE = os.getenv("OCR_MODE", "mock")
 # mock 일 때 결과: ok | mismatch | not_receipt | timeout
 OCR_MOCK_SCENARIO = os.getenv("OCR_MOCK_SCENARIO", "ok")
@@ -38,3 +38,8 @@ SCAN_LIMIT_PER_HOUR = int(os.getenv("SCAN_LIMIT_PER_HOUR", "20"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 # 이미지 입력과 JSON 스키마 출력을 지원하는 모델. 기본은 가장 저렴한 모델 (2026-11 기준)
 OPENAI_MODEL = os.getenv("OPENAI_MODEL") or "gpt-6-luna"
+
+# 실제 분석(OCR_MODE=claude)에만 쓴다. 키는 Claude Console 에서 만들고 .env 에만 둔다.
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+# 기본은 이미지 입력과 JSON 스키마 출력을 지원하는 가장 저렴한 모델 (2026-11 기준)
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL") or "claude-haiku-5-5"

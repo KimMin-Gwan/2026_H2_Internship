@@ -133,11 +133,13 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
       { "name": "샴푸 400ml", "quantity": 1, "amount": 6900, "category": "생활", "is_discount": false },
       { "name": "행사 할인", "quantity": 1, "amount": -1000, "category": "생활", "is_discount": true }
     ],
-    "items_sum": 14200, "mismatch": false, "confidence": "high"
+    "items_sum": 14200, "mismatch": false, "confidence": "high",
+    "ocr_provider": "claude", "ocr_model": "claude-haiku-5-5"
   }
 }
 ```
 - `purchased_on`, `merchant`, `total_amount` 는 읽지 못하면 `null` (클라이언트는 오늘 날짜·빈 상호로 채워 보여 준다).
+- `ocr_provider`, `ocr_model` 은 이 영수증을 분석한 AI다(분석할 때의 값을 저장해 둔다). 이 필드가 생기기 전에 만든 영수증은 빈 문자열이다.
 - 오류: `file_too_large`, `unsupported_media`, `not_a_receipt`, `rate_limited`, `ocr_failed`, `ocr_timeout`.
 - 실패하면 이미지·레코드를 남기지 않는다(`status: failed` 로 남기지 않고 삭제).
 
@@ -168,6 +170,12 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
   "income": ["급여", "용돈", "기타수입"] }
 ```
 프론트는 같은 상수를 `_lib/categories.ts` 에도 두되, 서버 값이 기준이다.
+
+### GET /meta/get_ocr_engine
+```json
+{ "ocr_provider": "claude", "ocr_model": "claude-haiku-5-5" }
+```
+서버가 영수증 분석에 지금 쓰는 AI다(`OCR_MODE`). `ocr_provider` 는 `mock` | `openai` | `claude`, `mock` 이면 `ocr_model` 은 빈 문자열 (인증 불필요). 설정 화면이 쓴다.
 
 ### GET /health
 `{ "status": "ok" }`. DB까지 확인한다. DB에 연결하지 못하면 `server` + `status: "db_error"` (인증 불필요).

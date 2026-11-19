@@ -1,4 +1,4 @@
-# OpenAI 호출(client.py) — 실제 네트워크 대신 가짜 응답으로 확인한다. 실제 호출은 맨 아래 live 테스트 (키가 있을 때만)
+# OpenAI·Claude 호출(client.py) — 실제 네트워크 대신 가짜 응답으로 확인한다. 실제 호출은 맨 아래 live 테스트 (키가 있을 때만)
 
 import io
 import json
@@ -82,6 +82,7 @@ def test_broken_twice_is_ocr_failed(openai_mode, monkeypatch):
     (httpx.ReadTimeout("slow"), "ocr_timeout"),
     (httpx.ConnectError("no network"), "ocr_failed"),
     (openai_response("", status=500), "ocr_failed"),
+    (httpx.Response(200, text="<html>not json</html>"), "ocr_failed"),
     (httpx.Response(200, json={"output": [{"type": "message", "content": [{"type": "refusal", "refusal": "no"}]}]}), "ocr_failed"),
 ])
 def test_call_failures(openai_mode, monkeypatch, response, code):
@@ -110,7 +111,83 @@ def test_time_limit_covers_retry(openai_mode, monkeypatch):
     assert calls == []
 
 
-# ── 실제 OpenAI 호출 (비용 발생). OPENAI_API_KEY 가 있을 때 pytest -m live 로만 돈다 ──
+# ── Claude (OCR_MODE=claude) ──
+
+def claude_response(text: str, status: int = 200, stop_reason: str = "end_turn") -> httpx.Response:
+    return httpx.Response(status, json={"stop_reason": stop_reason, "content": [{"type": "text", "text": text}]})
+
+
+@pytest.fixture
+def claude_mode(monkeypatch):
+    monkeypatch.setattr(config, "OCR_MODE", "claude")
+    monkeypatch.setattr(config, "ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(config, "ANTHROPIC_MODEL", "test-model")
+    monkeypatch.setattr(config, "OCR_TIMEOUT_SEC", 30)
+
+
+def test_claude_request_shape(claude_mode, monkeypatch):
+    calls = fake_post(monkeypatch, claude_response(json.dumps(GOOD)))
+    assert client.analyze_receipt(b"\xff\xd8\xffjpeg") == GOOD
+
+    request = calls[0]
+    assert request["url"] == "https://api.anthropic.com/v1/messages"
+    assert request["headers"]["x-api-key"] == "test-key"
+    assert request["headers"]["anthropic-version"] == "2023-06-01"
+    body = request["json"]
+    assert body["model"] == "test-model"
+    assert body["system"] == client.SYSTEM_PROMPT
+    assert body["output_config"]["format"]["type"] == "json_schema"
+    assert body["output_config"]["format"]["schema"] == client.RECEIPT_SCHEMA
+    image_part = body["messages"][0]["content"][0]
+    assert image_part["type"] == "image"
+    assert image_part["source"]["media_type"] == "image/jpeg"
+    assert image_part["source"]["data"] == "/9j/anBlZw=="  # 보낸 바이트의 base64
+
+
+def test_claude_retries_once_on_broken_json(claude_mode, monkeypatch):
+    calls = fake_post(monkeypatch, claude_response("not json {"), claude_response(json.dumps(GOOD)))
+    assert client.analyze_receipt(b"img") == GOOD
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize("response, code", [
+    (httpx.ReadTimeout("slow"), "ocr_timeout"),
+    (httpx.ConnectError("no network"), "ocr_failed"),
+    (claude_response("", status=500), "ocr_failed"),
+    (httpx.Response(200, text="<html>not json</html>"), "ocr_failed"),
+    (claude_response("", stop_reason="refusal"), "ocr_failed"),
+    (claude_response('{"items": [', stop_reason="max_tokens"), "ocr_failed"),
+    (httpx.Response(200, json={"stop_reason": "end_turn", "content": []}), "ocr_failed"),
+])
+def test_claude_call_failures(claude_mode, monkeypatch, response, code):
+    calls = fake_post(monkeypatch, response)
+    with pytest.raises(OcrError) as error:
+        client.analyze_receipt(b"img")
+    assert error.value.code == code
+    assert len(calls) == 1  # 이런 실패는 다시 묻지 않는다
+
+
+def test_claude_no_key_is_ocr_failed(claude_mode, monkeypatch):
+    monkeypatch.setattr(config, "ANTHROPIC_API_KEY", "")
+    calls = fake_post(monkeypatch)
+    with pytest.raises(OcrError) as error:
+        client.analyze_receipt(b"img")
+    assert error.value.code == "ocr_failed"
+    assert calls == []
+
+
+# ── 화면에 보여 줄 분석 AI ──
+
+def test_get_ocr_engine(openai_mode, monkeypatch):
+    assert client.get_ocr_engine() == {"ocr_provider": "openai", "ocr_model": "test-model"}
+    monkeypatch.setattr(config, "OCR_MODE", "claude")
+    monkeypatch.setattr(config, "ANTHROPIC_MODEL", "claude-test")
+    assert client.get_ocr_engine() == {"ocr_provider": "claude", "ocr_model": "claude-test"}
+    monkeypatch.setattr(config, "OCR_MODE", "mock")
+    assert client.get_ocr_engine() == {"ocr_provider": "mock", "ocr_model": ""}
+
+
+# ── 실제 모델 호출 (비용 발생). 키가 있을 때 pytest -m live 로만 돈다 ──
 
 def receipt_image() -> bytes:
     # 개인정보가 없는 가짜 영수증을 그린다. 기본 글꼴은 한글이 없어 영문으로 쓴다.
@@ -130,6 +207,15 @@ def receipt_image() -> bytes:
 @pytest.mark.skipif(not os.getenv("OPENAI_API_KEY"), reason="OPENAI_API_KEY 가 없다")
 def test_live_openai(monkeypatch):
     monkeypatch.setattr(config, "OCR_MODE", "openai")
+    result = postprocess(client.analyze_receipt(receipt_image()))
+    assert result["total_amount"] == 14200
+    assert len(result["items"]) >= 4
+
+
+@pytest.mark.live
+@pytest.mark.skipif(not os.getenv("ANTHROPIC_API_KEY"), reason="ANTHROPIC_API_KEY 가 없다")
+def test_live_claude(monkeypatch):
+    monkeypatch.setattr(config, "OCR_MODE", "claude")
     result = postprocess(client.analyze_receipt(receipt_image()))
     assert result["total_amount"] == 14200
     assert len(result["items"]) >= 4

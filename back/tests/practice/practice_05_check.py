@@ -37,5 +37,3 @@ def check_create_fail():
 for func in (check_get_list, check_category_filter, check_create_ok, check_create_fail):
     func()
     print("통과:", func.__name__)
-
-# 과제: 금액이 0 이하일 때 실패하는지 확인하는 check_create_zero_amount 를 추가해 보세요.

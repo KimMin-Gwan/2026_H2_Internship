@@ -47,8 +47,3 @@ def create(raw_request: dict):
     return {"result": True, "item": new_receipt}
 
 
-# 과제
-# 1. /docs 에서 create 를 눌러 아래 JSON을 보내 보세요.
-#    {"body": {"store": "CU", "amount": 4500, "category": "식비"}}
-# 2. 이어서 get_list 를 눌러 방금 넣은 영수증이 보이는지 확인해 보세요.
-# 3. /api/receipt/get_total 을 새로 만들어 amount 합계를 돌려주세요.
