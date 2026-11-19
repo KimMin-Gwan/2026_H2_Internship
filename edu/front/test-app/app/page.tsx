@@ -6,9 +6,9 @@ import s from './page.module.css';
 export default function Home() {
   const [result, setResult] = useState('');
 
-  const data = { store: '세븐일레븐',
-                 amount: 7800,
-                 category: '식비' 
+  const data = { store: '바보 ㅋㅋ',
+                 amount: 100,
+                 category: '??? 달라요? 뭐가 다르죠? ???????????????????????? 예???????????????' 
                 };
 
   async function send() {
@@ -17,9 +17,10 @@ export default function Home() {
       const res = await fetch('/api/receipt/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: data }), // 객체를 JSON 문자열로 바꿔서 보낸다
+        body: JSON.stringify({ body: { body: {data}} }), // 객체를 JSON 문자열로 바꿔서 보낸다
       });
       const json = await res.json(); // 응답 JSON을 다시 객체로 바꾼다
+      console.log(json);
       setResult(JSON.stringify(json, null, 2));
     } catch {
       setResult('서버에 연결할 수 없습니다');
