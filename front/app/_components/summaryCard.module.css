@@ -1,4 +1,10 @@
-.card { margin: 0 16px 12px; padding: 20px 20px 18px; border-radius: var(--radius-summary); background: var(--deep); color: #fff; }
+.card { 
+    margin: 0 16px 12px;
+    padding: 20px 20px 18px;
+    border-radius: var(--radius-summary);
+    background: #2c2a81;
+    color: #fff; 
+}
 .label { font-size: 13px; font-weight: 600; color: var(--on-deep); }
 .expense { display: flex; align-items: baseline; gap: 4px; margin: 4px 0 16px; }
 .expenseNumber { font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; }
