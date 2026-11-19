@@ -1,5 +1,11 @@
-# 분석 API — 카테고리 합계·비율·정렬, 0원 카테고리 제외, 전월 대비, 음수 지출(할인)
+# 분석 API — 카테고리 합계·비율·정렬, 0원 카테고리 제외, 전월 대비, 음수 지출(할인), 소비 조언(mock)
 
+import pytest
+
+from models import stats_model
+from others import config
+from services.advice import mock as advice_mock
+from services.advice.errors import advice_timeout
 from tests.conftest import get_test_db, post
 
 
@@ -73,3 +79,71 @@ def test_other_user_data_is_not_counted(user_client, other_client):
 
 def test_month_validation(user_client):
     assert stats(user_client, "2026/10")["fields"] == {"month": "월을 확인하세요"}
+
+
+# ── 소비 조언 (POST /stats/analyze_spending) ──
+
+@pytest.fixture
+def fast_advice(monkeypatch):
+    # 진행 표시용 지연을 없애고 mock 으로 고정한다.
+    monkeypatch.setattr(advice_mock, "DELAY_SEC", 0)
+    monkeypatch.setattr(config, "OCR_MODE", "mock")
+
+
+def advice(client, month="2026-10"):
+    return post(client, "/stats/analyze_spending", {"month": month}).json()["body"]
+
+
+def test_advice_ok(user_client, fast_advice):
+    create(user_client, "식비", 30000)
+    create(user_client, "교통", 10000)
+    body = advice(user_client)
+    assert body["result"] is True
+    assert body["month"] == "2026-10"
+    assert body["summary"] == "이번 달 지출은 40,000원입니다. 식비 지출이 30,000원(75.0%)으로 가장 큽니다."
+    assert len(body["advices"]) == 3
+    assert (body["ai_provider"], body["ai_model"]) == ("mock", "")
+
+
+def test_advice_sends_my_month_only(user_client, other_client, fast_advice, monkeypatch):
+    # AI에 보내는 데이터: 내 내역만, 그 달만, 계정 정보·ID 없이
+    create(user_client, "식비", 9000)
+    create(user_client, "급여", 500000, type="income")
+    create(user_client, "식비", 7000, occurred_on="2026-09-10")  # 지난달
+    create(other_client, "쇼핑", 99000)                          # 다른 사용자
+    sent = {}
+
+    def fake_make_advice(spending):
+        sent.update(spending)
+        return {"summary": "요약", "advices": ["조언"]}
+
+    monkeypatch.setattr(stats_model, "make_advice", fake_make_advice)
+    assert advice(user_client)["advices"] == ["조언"]
+    assert (sent["total_expense"], sent["total_income"], sent["prev_month_expense"]) == (9000, 500000, 7000)
+    assert sent["categories"] == [{"category": "식비", "amount": 9000, "count": 1, "ratio": 100.0}]
+    assert sorted(row["amount"] for row in sent["transactions"]) == [9000, 500000]
+    assert set(sent["transactions"][0]) == {"date", "type", "category", "title", "merchant", "amount", "memo"}
+
+
+def test_advice_no_data(user_client, fast_advice):
+    body = advice(user_client, month="2026-08")
+    assert (body["result"], body["error_code"], body["detail"]) == (False, "no_data", "분석할 내역이 없습니다")
+
+
+def test_advice_bad_month(user_client, fast_advice):
+    assert advice(user_client, month="2026-13")["error_code"] == "validation"
+
+
+def test_advice_failure_is_passed_on(user_client, fast_advice, monkeypatch):
+    create(user_client, "식비", 9000)
+
+    def raise_timeout(spending):
+        raise advice_timeout()
+
+    monkeypatch.setattr(stats_model, "make_advice", raise_timeout)
+    body = advice(user_client)
+    assert (body["result"], body["error_code"], body["detail"]) == (False, "advice_timeout", "분석 시간이 초과되었습니다")
+
+
+def test_advice_needs_login(client):
+    assert post(client, "/stats/analyze_spending", {"month": "2026-10"}).status_code == 401

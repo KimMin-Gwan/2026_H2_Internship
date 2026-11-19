@@ -1,6 +1,6 @@
 'use client';
 
-// N1 분석 — 월별 지출을 카테고리 도넛, 전월 대비 칩, 카테고리 행으로 보여 준다. 수입은 분석하지 않는다 (02 문서 5절)
+// N1 분석 — 월별 지출을 카테고리 도넛, 전월 대비 칩, AI 소비 분석 카드, 카테고리 행으로 보여 준다 (02 문서 5절)
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,6 +14,7 @@ import { Skeleton } from '../../_components/Skeleton';
 import { getCategoryStats, type CategoryStat, type CategoryStats } from '../../_lib/api';
 import { getCategory } from '../../_lib/categories';
 import { currentMonth, formatWon } from '../../_lib/format';
+import { AdviceCard } from './AdviceCard';
 import { Donut } from './Donut';
 import s from './stats.module.css';
 
@@ -64,6 +65,8 @@ export function StatsView() {
             <Donut categories={stats.categories} totalExpense={stats.total_expense} />
           </div>
           <CompareChip total={stats.total_expense} previous={stats.prev_month_expense} />
+          {/* key 를 달로 두어, 달을 바꾸면 이전 달의 분석 결과가 남지 않게 한다 */}
+          <AdviceCard key={month} month={month} />
           <section className={s.card}>
             {stats.categories.map((item) => (
               <CategoryRow key={item.category} item={item}

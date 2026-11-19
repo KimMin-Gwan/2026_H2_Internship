@@ -165,6 +165,15 @@ export async function getCategoryStats(month: string): Promise<CategoryStats> {
   return { total_expense: body.total_expense, prev_month_expense: body.prev_month_expense, categories: body.categories };
 }
 
+// AI가 쓴 소비 패턴 요약과 조언. ai_provider·ai_model 은 글을 쓴 AI (화면 표시는 _lib/ocrEngine.ts)
+export type SpendingAdvice = { summary: string; advices: string[]; ai_provider: string; ai_model: string };
+
+// 그 달의 소비 데이터를 AI에 보내 분석한다. 몇 초 걸리고, 결과는 서버에 저장되지 않는다.
+export async function analyzeSpending(month: string): Promise<SpendingAdvice> {
+  const body = await apiPost('/stats/analyze_spending', { month });
+  return { summary: body.summary, advices: body.advices, ai_provider: body.ai_provider, ai_model: body.ai_model };
+}
+
 // ── 영수증 ──
 
 export type ReceiptItem = {

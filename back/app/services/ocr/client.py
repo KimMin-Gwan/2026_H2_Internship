@@ -79,13 +79,13 @@ def _request_body(image: bytes) -> dict:
 
 # 모델의 답(문자열)을 돌려준다.
 def _call_openai(image: bytes, timeout: float) -> str:
-    data = _post_json(url=OPENAI_URL, body=_request_body(image), timeout=timeout,
+    data = post_json(url=OPENAI_URL, body=_request_body(image), timeout=timeout,
                       headers={"Authorization": f"Bearer {config.OPENAI_API_KEY}"})
-    return _output_text(data)
+    return openai_output_text(data)
 
 
 # 응답의 output 중 message 의 output_text 를 찾는다. 모델이 거절(refusal)했으면 ocr_failed
-def _output_text(data: dict) -> str:
+def openai_output_text(data: dict) -> str:
     for output in data.get("output", []):
         if output.get("type") != "message":
             continue
@@ -115,13 +115,13 @@ def _claude_request_body(image: bytes) -> dict:
 
 # 모델의 답(문자열)을 돌려준다.
 def _call_claude(image: bytes, timeout: float) -> str:
-    data = _post_json(url=CLAUDE_URL, body=_claude_request_body(image), timeout=timeout,
+    data = post_json(url=CLAUDE_URL, body=_claude_request_body(image), timeout=timeout,
                       headers={"x-api-key": config.ANTHROPIC_API_KEY, "anthropic-version": CLAUDE_API_VERSION})
-    return _claude_output_text(data)
+    return claude_output_text(data)
 
 
 # 응답의 content 중 text 블록을 찾는다. 모델이 거절했거나(refusal) 답이 중간에 잘렸으면(max_tokens) ocr_failed
-def _claude_output_text(data: dict) -> str:
+def claude_output_text(data: dict) -> str:
     if data.get("stop_reason") in ("refusal", "max_tokens"):
         raise ocr_failed()
     for block in data.get("content", []):
@@ -132,8 +132,8 @@ def _claude_output_text(data: dict) -> str:
 
 # ── 공통 ──
 
-# HTTP 요청을 한 번 보내고 응답(JSON)을 dict 로 돌려준다. 시간 초과는 ocr_timeout, 그 밖의 실패는 ocr_failed
-def _post_json(url: str, body: dict, headers: dict, timeout: float) -> dict:
+# HTTP 요청을 한 번 보내고 응답(JSON)을 dict 로 돌려준다. 소비 조언(services/advice)도 이 함수를 쓴다. 시간 초과는 ocr_timeout, 그 밖의 실패는 ocr_failed
+def post_json(url: str, body: dict, headers: dict, timeout: float) -> dict:
     try:
         res = httpx.post(url, json=body, timeout=timeout, headers=headers)
     except httpx.TimeoutException:

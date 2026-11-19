@@ -40,6 +40,9 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
 | `rate_limited` | 호출 제한 |
 | `ocr_failed` | 외부 분석 호출/응답 오류 |
 | `ocr_timeout` | 분석 시간 초과 |
+| `no_data` | 소비 분석: 그 달에 내역이 없음 |
+| `advice_failed` | 소비 분석: AI 호출 실패 또는 응답 오류 |
+| `advice_timeout` | 소비 분석: 시간 초과 |
 | `server` | 서버 내부 오류 (DB 연결 실패 등) |
 
 > 프론트 규칙: `unauthorized` 일 때만 로그인 화면으로 보낸다. `invalid_credentials`, `wrong_password` 는 해당 폼에 오류로 표시한다.
@@ -116,6 +119,20 @@ ID는 문자열이고 이름은 대상마다 다르다: `uid`, `transaction_id`,
 }
 ```
 `categories` 는 금액 내림차순, 0원 카테고리 제외, `ratio` 는 소수 첫째 자리. 지출이 없으면 `categories: []`, `total_expense: 0`.
+
+### POST /stats/analyze_spending
+그 달의 소비 데이터를 AI에 보내 소비 패턴 요약과 조언을 받는다. 최대 대기 `OCR_TIMEOUT_SEC`. 결과는 저장하지 않는다. 호출 횟수 제한은 없다.
+```json
+// 요청
+{ "month": "2026-10" }
+// 응답
+{ "month": "2026-10",
+  "summary": "10월 지출은 1,119,000원으로 지난달보다 83,000원 늘었습니다. 식비가 412,300원(36.8%)으로 가장 큽니다.",
+  "advices": ["식비 결제가 32건으로 잦습니다. 주 단위 식비 예산을 정해 두시기 바랍니다.", "...", "..."],
+  "ai_provider": "claude", "ai_model": "claude-haiku-5-5" }
+```
+- `advices` 는 1~5개(프롬프트는 3개를 요청한다). `ai_provider` 는 `mock` | `openai` | `claude` (`OCR_MODE`), `mock` 이면 `ai_model` 은 빈 문자열.
+- 오류: `validation`(월), `no_data`, `advice_failed`, `advice_timeout`.
 
 ## 6. 영수증 (receipt)
 

@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 
 from controllers import Stats_Controller
 from utils import Head_Parser, RequestManager
-from views.master_view import Master_View
+from views.master_view import Master_View, RequestHeader
 
 
 class Stats_Service_View(Master_View):
@@ -31,7 +31,26 @@ class Stats_Service_View(Master_View):
             response = request_manager.make_json_response(body_data=body_data)
             return response
 
+        # 소비 조언. AI를 부르므로(비용·시간) 조회가 아니라 POST 로 둔다
+        @self.__app.post(self._endpoint + '/stats/analyze_spending', tags=['Stats'])
+        def analyze_spending(request: Request, raw_request: dict):
+            request_manager = RequestManager(request=request, secret_key=self.__jwt_secret_key)
+            data_payload = AnalyzeSpendingRequest(request=raw_request)
+            request_manager.try_view_management_need_authorized(data_payload=data_payload)
+            stats_controller = Stats_Controller()
+            model = stats_controller.try_analyze_spending(database=self.__database, request=request_manager)
+            body_data = model.get_response_form_data(self._head_parser)
+            response = request_manager.make_json_response(body_data=body_data)
+            return response
+
 
 class GetCategoryStatsRequest:
     def __init__(self, month: str) -> None:
         self.month = month
+
+
+class AnalyzeSpendingRequest(RequestHeader):
+    def __init__(self, request: dict) -> None:
+        super().__init__(request)
+        body = request.get("body", {})
+        self.month = str(body.get("month", ""))

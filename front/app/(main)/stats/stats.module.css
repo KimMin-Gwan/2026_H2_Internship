@@ -22,3 +22,28 @@
 .track { flex: 1; height: 6px; border-radius: 3px; background: var(--seg); }
 .bar { display: block; height: 6px; border-radius: 3px; }
 .rowRatio { min-width: 78px; text-align: right; font-size: 12px; font-weight: 700; color: var(--ink-3); }
+
+/* AI 소비 분석 카드 (AdviceCard.tsx) */
+.advice { margin: 0 16px 12px; border-radius: var(--radius-card); background: var(--card); }
+.adviceIdle { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.adviceResult { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.aiIcon { width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; background: var(--primary-soft); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; }
+.aiIconSmall { width: 32px; height: 32px; }
+.adviceText { flex: 1; min-width: 0; }
+.adviceTitle { flex: 1; font-size: 15px; font-weight: 800; color: var(--ink); }
+.adviceSub { margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+.adviceButton { height: 40px; min-width: 64px; padding: 0 18px; flex-shrink: 0; border-radius: 12px; background: var(--primary); font-size: 14px; font-weight: 700; color: #fff; }
+.adviceButton:active { background: var(--primary-dark); }
+.adviceButton:disabled { opacity: .6; }
+.adviceHead { display: flex; align-items: center; gap: 10px; }
+.engine { min-width: 0; height: 24px; padding: 0 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: var(--radius-chip); background: var(--primary-soft); font-size: 12px; font-weight: 700; color: var(--primary-dark); }
+.engine svg { flex-shrink: 0; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.summary { font-size: 15px; font-weight: 500; line-height: 1.6; color: var(--ink); }
+.adviceList { padding-top: 12px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--line); list-style: none; }
+.adviceItem { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.55; color: var(--ink-2); }
+.number { width: 22px; height: 22px; margin-top: 1px; flex-shrink: 0; border-radius: 50%; background: var(--primary-soft); font-size: 12px; font-weight: 800; color: var(--primary-dark); display: flex; align-items: center; justify-content: center; }
+.again { height: 32px; align-self: center; padding: 0 12px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--ink-3); }
+.again:disabled { opacity: .6; }
+.spin { animation: adviceSpin .8s linear infinite; }
+@keyframes adviceSpin { to { transform: rotate(360deg); } }

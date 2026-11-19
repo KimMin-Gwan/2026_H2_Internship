@@ -270,15 +270,37 @@ const statRow = ([cat, amt, n]) => {
       D({ display: "flex", justifyContent: "space-between", alignItems: "baseline" }, Sp({ fontSize: 15, fontWeight: 700 }, cat), Sp({ fontSize: 15, fontWeight: 700, fontVariantNumeric: "tabular-nums" }, won(amt) + "원")),
       D({ display: "flex", alignItems: "center", gap: 8 }, D({ flex: 1, height: 6, borderRadius: 3, background: C.seg }, D({ width: pct.toFixed(1) + "%", height: 6, borderRadius: 3, background: CAT[cat].c })), Sp({ fontSize: 12, fontWeight: 700, color: C.ink3, minWidth: 78, textAlign: "right" }, `${pct.toFixed(1)}% · ${n}건`))));
 };
-const N1 = () =>
-  root([
-    header("분석", { back: false, big: true }),
-    monthSel("2026년 10월"),
-    D({ padding: "12px 0 10px" }, donut()),
-    D({ display: "flex", justifyContent: "center", marginBottom: 12 }, D({ display: "flex", alignItems: "center", gap: 6, background: C.warnSoft, color: C.warnText, borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 700 }, I("LuTrendingUp", 16, C.warnText), `전월 대비 +${won(STAT_TOTAL - PREV_TOTAL)}원`)),
-    D({ background: "#fff", borderRadius: 20, margin: "0 16px", padding: "6px 0" }, ...STATS.map(statRow)),
-    tabbar("분석"),
-  ]);
+// AI 소비 분석 카드 — 누르기 전(idle)과 결과(result). 결과에는 어떤 AI가 쓴 글인지 칩으로 보여 준다.
+const aiIcon = (size) => D({ width: size, height: size, borderRadius: size / 2, background: C.soft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }, I("LuSparkles", size / 2, C.primaryDark));
+const adviceIdle = () =>
+  D({ background: "#fff", borderRadius: 20, margin: "0 16px 12px", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 },
+    aiIcon(40),
+    D({ flex: 1 }, T({ fontSize: 15, fontWeight: 700 }, "AI 소비 분석"), T({ fontSize: 13, fontWeight: 500, color: C.ink3, marginTop: 2 }, "이번 달 소비 패턴과 조언")),
+    D({ height: 40, padding: "0 18px", borderRadius: 12, background: C.primary, color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center" }, "분석"));
+const ADVICES = [
+  "식비 결제가 32건으로 잦습니다. 주 단위 식비 예산을 100,000원 안팎으로 정해 두시기 바랍니다.",
+  "카페·간식 지출이 15건, 87,900원입니다. 횟수를 주 2회로 줄이면 한 달에 약 35,000원을 아낄 수 있습니다.",
+  "생활 지출은 11건이지만 금액이 큽니다. 생필품은 한 번에 모아서 구매하면 중복 지출을 줄일 수 있습니다.",
+];
+const adviceResult = () =>
+  D({ background: "#fff", borderRadius: 20, margin: "0 16px 12px", padding: 16, display: "flex", flexDirection: "column", gap: 12 },
+    D({ display: "flex", alignItems: "center", gap: 10 }, aiIcon(32), Sp({ flex: 1, fontSize: 15, fontWeight: 800 }, "AI 소비 분석"),
+      D({ display: "flex", alignItems: "center", gap: 4, height: 24, padding: "0 9px", borderRadius: 999, background: C.soft, color: C.primaryDark, fontSize: 12, fontWeight: 700 }, I("LuSparkles", 13, C.primaryDark), "claude-haiku-5-5")),
+    T({ fontSize: 15, fontWeight: 500, lineHeight: 1.6 }, `10월 지출은 ${won(STAT_TOTAL)}원으로 지난달보다 ${won(STAT_TOTAL - PREV_TOTAL)}원 늘었습니다. 식비가 412,300원(36.8%)으로 가장 크고, 생활이 338,500원으로 뒤를 잇습니다.`),
+    D({ height: 1, background: C.line }),
+    ...ADVICES.map((text, i) => D({ display: "flex", gap: 10, alignItems: "flex-start" },
+      D({ width: 22, height: 22, borderRadius: 11, background: C.soft, color: C.primaryDark, fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }, String(i + 1)),
+      T({ flex: 1, fontSize: 14, fontWeight: 500, lineHeight: 1.55, color: C.ink2 }, text))),
+    D({ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, height: 32, fontSize: 13, fontWeight: 700, color: C.ink3 }, I("LuRefreshCw", 14, C.ink3), "다시 분석"));
+const statsTop = () => [
+  header("분석", { back: false, big: true }),
+  monthSel("2026년 10월"),
+  D({ padding: "12px 0 10px" }, donut()),
+  D({ display: "flex", justifyContent: "center", marginBottom: 12 }, D({ display: "flex", alignItems: "center", gap: 6, background: C.warnSoft, color: C.warnText, borderRadius: 999, padding: "7px 14px", fontSize: 13, fontWeight: 700 }, I("LuTrendingUp", 16, C.warnText), `전월 대비 +${won(STAT_TOTAL - PREV_TOTAL)}원`)),
+];
+const statsList = () => D({ background: "#fff", borderRadius: 20, margin: "0 16px", padding: "6px 0" }, ...STATS.map(statRow));
+const N1 = () => root([...statsTop(), adviceIdle(), statsList(), tabbar("분석")]);
+const N1b = () => root([...statsTop(), adviceResult(), statsList(), tabbar("분석")]);
 
 // ---------- N2 category detail ----------
 const N2DATA = [
@@ -352,7 +374,8 @@ const SCREENS = [
   { id: "O3b", file: "O3b-scan-result-mismatch", title: "인식 결과 (합계 불일치)", group: "영수증 스캔", fn: O3b, note: "경고만 표시, 저장은 허용" },
   { id: "O4", file: "O4-item-edit-sheet", title: "품목 수정 시트", group: "영수증 스캔", fn: O4, note: "품목명·금액·카테고리 수정, 삭제" },
   { id: "O5", file: "O5-scan-failed", title: "인식 실패", group: "영수증 스캔", fn: O5, note: "다시 촬영 또는 직접 입력" },
-  { id: "N1", file: "N1-stats", title: "분석", group: "분석", fn: N1, note: "월별 카테고리 비율, 전월 대비" },
+  { id: "N1", file: "N1-stats", title: "분석", group: "분석", fn: N1, note: "월별 카테고리 비율, 전월 대비, AI 소비 분석 버튼" },
+  { id: "N1b", file: "N1b-stats-advice", title: "분석 (AI 조언)", group: "분석", fn: N1b, note: "분석 버튼을 누른 뒤. 요약과 조언 3개" },
   { id: "N2", file: "N2-stats-category", title: "카테고리 상세", group: "분석", fn: N2, note: "분석 행을 눌러 진입" },
   { id: "S1", file: "S1-settings", title: "설정", group: "설정", fn: S1, note: "계정 관리" },
   { id: "S2", file: "S2-password", title: "비밀번호 변경", group: "설정", fn: S2, note: "닉네임 변경도 같은 패턴" },

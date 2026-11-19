@@ -101,3 +101,5 @@
 | 2026-11-19 | `client.py` 의 HTTP 호출을 `_post_json` 한 곳으로 모았다. 응답이 JSON이 아니어도 `ocr_failed` 로 처리한다(전에는 처리되지 않은 예외) | Claude |
 | 2026-11-19 | `config.py` 의 `JWT_SECRET_KEY` 기본값 `qwer1234` 를 지웠다. 기본값이 있으면 `.env` 없이도 알려진 키로 서버가 켜지고, main.py 의 "비어 있으면 멈춘다" 확인이 동작하지 않는다 | Claude |
 | 2026-11-19 | 어떤 AI가 쓰였는지 화면에 표시한다: O3 인식 결과의 품목 수 줄 오른쪽 칩, S1 설정 정보의 `영수증 분석 AI` 줄. 실제 분석은 모델 이름, mock 은 `예시 결과`. `receipts` 에 `ocr_provider`·`ocr_model` 을 저장하고 `GET /meta/get_ocr_engine` 을 더했다. 시안(`design/`)에는 아직 반영하지 않았다 | 사용자 (위치는 Claude) |
+| 2026-11-19 | **AI 소비 분석** 추가(범위 추가): 분석 탭 카드의 `분석` 버튼 → `POST /stats/analyze_spending` → `services/advice/`. 내역 전체를 보낸다, 결과는 저장하지 않는다, 호출 횟수 제한은 두지 않는다. 화면은 시안 N1·N1b 를 먼저 만들고 구현했다 | 사용자 |
+| 2026-11-19 | `services/ocr/client.py` 의 `post_json`, `openai_output_text`, `claude_output_text` 를 공개 이름으로 바꿨다(소비 분석이 함께 쓴다). 소비 분석도 `OCR_MODE`·`OCR_TIMEOUT_SEC` 를 쓴다(이름은 그대로 두었다) | Claude |
