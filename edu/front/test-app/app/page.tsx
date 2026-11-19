@@ -6,7 +6,7 @@ import s from './page.module.css';
 export default function Home() {
   const [result, setResult] = useState('');
 
-  const data = { store: 'GS',
+  const data = { store: 'GS25',
                  amount: 4500,
                  category: '식비' 
                 };
