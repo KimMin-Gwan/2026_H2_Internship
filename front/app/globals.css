@@ -1,10 +1,10 @@
 /* 디자인 토큰(docs/06-design-system.md 2절)과 기본 스타일. 화면 CSS는 여기 변수만 쓴다. */
 
 :root {
-  --primary: #00835F;
-  --primary-dark: #005F45;
+  --primary: #1367BB;
+  --primary-dark: #1367BB;
   --primary-soft: #E3F5EE;
-  --mint: #3DDBA9;
+  --mint: #9becf2;
   --deep: #0F2E26;
   --on-deep: #C9D8D2;
   --ink: #12241F;

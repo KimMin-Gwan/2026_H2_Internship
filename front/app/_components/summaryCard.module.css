@@ -2,7 +2,7 @@
     margin: 0 16px 12px;
     padding: 20px 20px 18px;
     border-radius: var(--radius-summary);
-    background: #2c2a81;
+    background: #406dc5;
     color: #fff; 
 }
 .label { font-size: 13px; font-weight: 600; color: var(--on-deep); }
