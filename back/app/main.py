@@ -8,7 +8,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pymongo.errors import ConfigurationError, OperationFailure, PyMongoError
 
-from models import Mongo_Database
+from models import Database, make_database
+from models.database.errors import DatabaseError
 from others import config
 from utils import CredentialsException, Head_Parser
 from views import (Core_Service_View, Receipt_Service_View, Sign_Service_View, Stats_Service_View,
@@ -22,7 +23,7 @@ VERSION = "v0.1.0"
 
 
 class YEONGSUGORI_Server:
-    def __init__(self, database: Mongo_Database, head_parser: Head_Parser, jwt_secret_key: str) -> None:
+    def __init__(self, database: Database, head_parser: Head_Parser, jwt_secret_key: str) -> None:
         self.__app = FastAPI(title="YEONGSUGORI API")
         self.__head_parser = head_parser
 
@@ -114,12 +115,15 @@ print(f'{YELLOW}INFO{RESET}<-[      Application | Version : {VERSION}')
 if not config.JWT_SECRET_KEY:
     stop_server("JWT_SECRET_KEY 가 비어 있습니다.", ".env 에 길고 임의의 문자열로 채우세요.")
 
-# 1. DB 연결, 인덱스 만들기 (여기서 처음으로 DB에 닿는다)
+# 1. DB 연결, 인덱스(SQLite 는 테이블) 만들기 (여기서 처음으로 DB에 닿는다)
+print(f'{YELLOW}INFO{RESET}<-[      Application | DB : {"SQLite " + config.SQLITE_PATH if config.DB_TYPE == "sqlite" else "MongoDB"}')
 try:
-    database = Mongo_Database(uri=config.MONGODB_URI, db_name=config.MONGODB_DB)
+    database = make_database()  # .env 의 DB_TYPE 에 따라 MongoDB 또는 SQLite
     database.make_indexes()
 except PyMongoError as error:
     stop_server(f"DB에 연결하지 못했습니다: {hide_password(config.MONGODB_URI)}", db_error_hint(error))
+except DatabaseError as error:
+    stop_server(f"SQLite 파일을 열지 못했습니다: {config.SQLITE_PATH}", str(error))
 
 # 2. 서버 조립
 yeongsugori_server = YEONGSUGORI_Server(database=database, head_parser=Head_Parser(), jwt_secret_key=config.JWT_SECRET_KEY)

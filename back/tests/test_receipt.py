@@ -64,7 +64,7 @@ def test_upload_ok(user_client):
     assert receipt["mismatch"] is False
     # 어떤 AI로 분석했는지 응답과 DB에 남고, 다시 불러와도 같다
     assert (receipt["ocr_provider"], receipt["ocr_model"]) == ("mock", "")
-    saved = get_test_db()["receipts"].find_one({"receipt_id": receipt["receipt_id"]})
+    saved = get_test_db().get_data_with_key(target="receipts", key="receipt_id", key_data=receipt["receipt_id"])
     assert (saved["ocr_provider"], saved["ocr_model"]) == ("mock", "")
     again = get_receipt(user_client, receipt["receipt_id"])["receipt"]
     assert (again["ocr_provider"], again["ocr_model"]) == ("mock", "")
@@ -72,7 +72,7 @@ def test_upload_ok(user_client):
 
 def test_saved_image_is_small_jpeg_without_exif(user_client):
     receipt = upload(user_client)["receipt"]
-    saved = get_test_db()["receipts"].find_one({"receipt_id": receipt["receipt_id"]})
+    saved = get_test_db().get_data_with_key(target="receipts", key="receipt_id", key_data=receipt["receipt_id"])
     path = Path(config.UPLOAD_DIR) / saved["image_key"]
     image = Image.open(path)
     assert image.format == "JPEG"
@@ -94,7 +94,7 @@ def test_upload_failure_leaves_nothing(user_client, monkeypatch, scenario, code)
     monkeypatch.setattr(config, "OCR_MOCK_SCENARIO", scenario)
     body = upload(user_client)
     assert body["error_code"] == code
-    assert get_test_db()["receipts"].count_documents({}) == 0
+    assert get_test_db().count_with_query(target="receipts", query={}) == 0
     assert set(Path(config.UPLOAD_DIR).rglob("*.jpg")) == before  # 저장했던 이미지도 지운다
 
 
@@ -124,7 +124,7 @@ def test_confirm_creates_transactions(user_client):
     body = post(user_client, "/receipt/confirm_receipt", confirm_body(receipt)).json()["body"]
     assert body == {"result": True, "detail": "", "created": 5, "month": "2026-11"}
 
-    saved = list(get_test_db()["transactions"].find({}, {"_id": 0}).sort("amount", 1))
+    saved = get_test_db().get_list_with_query(target="transactions", query={}, sort=[("amount", 1)])
     assert len(saved) == 5
     assert saved[0]["amount"] == -1000
     assert all(row["receipt_id"] == receipt["receipt_id"] and row["merchant"] == "한빛마트 경산점" for row in saved)
@@ -133,7 +133,7 @@ def test_confirm_creates_transactions(user_client):
     assert get_receipt(user_client, receipt["receipt_id"])["receipt"]["items"] == []
     again = post(user_client, "/receipt/confirm_receipt", confirm_body(receipt)).json()["body"]
     assert again["error_code"] == "bad_request"
-    assert get_test_db()["transactions"].count_documents({}) == 5
+    assert get_test_db().count_with_query(target="transactions", query={}) == 5
 
 
 def test_confirm_with_edits(user_client):
@@ -142,7 +142,7 @@ def test_confirm_with_edits(user_client):
     body = post(user_client, "/receipt/confirm_receipt", confirm_body(receipt, merchant="", occurred_on="2026-10-31", items=items)).json()["body"]
     assert body["created"] == 2
     assert body["month"] == "2026-10"
-    saved = get_test_db()["transactions"].find_one({"title": "새 품목"})
+    saved = get_test_db().get_data_with_key(target="transactions", key="title", key_data="새 품목")
     assert saved["merchant"] is None
     assert saved["occurred_on"] == "2026-10-31"
 
@@ -160,7 +160,7 @@ def test_confirm_validation_saves_nothing(user_client):
         body = post(user_client, "/receipt/confirm_receipt", confirm_body(receipt, items=items)).json()["body"]
         assert body["error_code"] == "validation"
         assert field in body["fields"]
-    assert get_test_db()["transactions"].count_documents({}) == 0
+    assert get_test_db().count_with_query(target="transactions", query={}) == 0
 
 
 def test_image_only_for_owner(user_client, other_client):
@@ -176,7 +176,7 @@ def test_image_only_for_owner(user_client, other_client):
 
 def test_withdraw_deletes_images(user_client):
     receipt = upload(user_client)["receipt"]
-    saved = get_test_db()["receipts"].find_one({"receipt_id": receipt["receipt_id"]})
+    saved = get_test_db().get_data_with_key(target="receipts", key="receipt_id", key_data=receipt["receipt_id"])
     path = Path(config.UPLOAD_DIR) / saved["image_key"]
     assert path.exists()
     post(user_client, "/user/withdraw", {"password": PASSWORD})

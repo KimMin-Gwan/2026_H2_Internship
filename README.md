@@ -26,6 +26,7 @@ cp .env.example .env
 
 - `.env` 를 열어 `JWT_SECRET_KEY` 를 길고 임의의 문자열로 채운다. 비어 있으면 백엔드가 시작하지 않는다.
 - `.env` 의 `MONGODB_URI` 에 MongoDB Atlas 연결 주소를 넣는다 (아래 "MongoDB Atlas 준비").
+- 관계형 DB(SQLite)로 켜려면 `.env` 에 `DB_TYPE=sqlite` 를 넣는다. 설치할 것이 없고 `MONGODB_URI` 도 필요 없다. 테이블 정의는 `back/app/models/database/schema.sql`, 설명은 `docs/08-db-design.md` 에 있다. 두 DB의 데이터는 서로 옮겨지지 않는다.
 - 영수증 분석은 기본이 `OCR_MODE=mock`(고정 결과, 키 불필요)이다. 실제 분석을 쓰려면 `OCR_MODE=openai` 로 바꾸고 `OPENAI_API_KEY` 를 채우거나, `OCR_MODE=claude` 로 바꾸고 `ANTHROPIC_API_KEY` 를 채운다.
 
 ### 2. 실행

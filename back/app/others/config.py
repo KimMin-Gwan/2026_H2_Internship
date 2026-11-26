@@ -12,7 +12,12 @@ BACK_DIR = Path(__file__).resolve().parents[2]
 # docker 에서는 compose 가 .env 를 환경 변수로 넣어 주고, 이 파일은 이미지 안에 없다.
 load_dotenv(BACK_DIR.parent / ".env")
 
-# 비어 있으면 개발용 기본값(이 PC의 mongo)을 쓴다. docker에서는 compose가 mongo 컨테이너 주소를 넣는다.
+# 어떤 DB를 쓸지: mongo(MongoDB, 기본) | sqlite(관계형, 파일 하나). 모델 코드는 둘 다 같다 (08 문서)
+DB_TYPE = os.getenv("DB_TYPE") or "mongo"
+# DB_TYPE=sqlite 일 때의 DB 파일. 비어 있으면 개발용 back/data/yeongsugori.db (docker에서는 compose가 볼륨 경로를 넣는다)
+SQLITE_PATH = os.getenv("SQLITE_PATH") or str(BACK_DIR / "data" / "yeongsugori.db")
+
+# (DB_TYPE=mongo) 비어 있으면 개발용 기본값(이 PC의 mongo)을 쓴다. docker에서는 compose가 mongo 컨테이너 주소를 넣는다.
 MONGODB_URI = os.getenv("MONGODB_URI") or ""
 MONGODB_DB = os.getenv("MONGODB_DB", "yeongsugori")
 

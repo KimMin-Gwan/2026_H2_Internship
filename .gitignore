@@ -2,3 +2,4 @@
 *.pem
 uploads/
 __pycache__/
+back/data/

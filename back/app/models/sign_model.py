@@ -3,10 +3,9 @@
 import uuid
 from datetime import datetime, timezone
 
-from pymongo.errors import DuplicateKeyError
-
 from data_domains.yeongsugori_data_domain import User
 from models.base_model import BaseModel
+from models.database.errors import DuplicateKeyError
 from utils.password import check_password, hash_password
 from utils.validator import is_strong_password, is_valid_email, is_valid_nickname
 

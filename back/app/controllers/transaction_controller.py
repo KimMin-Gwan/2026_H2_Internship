@@ -1,11 +1,11 @@
 # 가계부 내역 — 로그인한 사용자를 넣은 모델을 만들고 필요한 동작을 시킨 뒤 돌려준다.
 
-from models import Mongo_Database, TransactionModel
+from models import Database, TransactionModel
 from utils import RequestManager
 
 
 class Transaction_Controller:
-    def get_month_list(self, database: Mongo_Database, request: RequestManager) -> TransactionModel:
+    def get_month_list(self, database: Database, request: RequestManager) -> TransactionModel:
         model = TransactionModel(database=database)
         if not model.set_user_with_uid(uid=request.jwt_payload):
             return model
@@ -15,7 +15,7 @@ class Transaction_Controller:
                              category=request.data_payload.category)
         return model
 
-    def get_transaction(self, database: Mongo_Database, request: RequestManager) -> TransactionModel:
+    def get_transaction(self, database: Database, request: RequestManager) -> TransactionModel:
         model = TransactionModel(database=database)
         if not model.set_user_with_uid(uid=request.jwt_payload):
             return model
@@ -23,7 +23,7 @@ class Transaction_Controller:
         model.get_transaction(transaction_id=request.data_payload.transaction_id)
         return model
 
-    def try_create_transaction(self, database: Mongo_Database, request: RequestManager) -> TransactionModel:
+    def try_create_transaction(self, database: Database, request: RequestManager) -> TransactionModel:
         model = TransactionModel(database=database)
         if not model.set_user_with_uid(uid=request.jwt_payload):
             return model
@@ -33,7 +33,7 @@ class Transaction_Controller:
                                  title=data.title, memo=data.memo, occurred_on=data.occurred_on)
         return model
 
-    def try_edit_transaction(self, database: Mongo_Database, request: RequestManager) -> TransactionModel:
+    def try_edit_transaction(self, database: Database, request: RequestManager) -> TransactionModel:
         model = TransactionModel(database=database)
         if not model.set_user_with_uid(uid=request.jwt_payload):
             return model
@@ -44,7 +44,7 @@ class Transaction_Controller:
                                occurred_on=data.occurred_on)
         return model
 
-    def try_delete_transaction(self, database: Mongo_Database, request: RequestManager) -> TransactionModel:
+    def try_delete_transaction(self, database: Database, request: RequestManager) -> TransactionModel:
         model = TransactionModel(database=database)
         if not model.set_user_with_uid(uid=request.jwt_payload):
             return model

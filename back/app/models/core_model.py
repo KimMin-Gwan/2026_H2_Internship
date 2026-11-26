@@ -1,8 +1,7 @@
 # 서버 상태 확인, 카테고리 목록, 영수증 분석 AI 모델 (로그인 불필요)
 
-from pymongo.errors import PyMongoError
-
 from models.base_model import BaseModel
+from models.database.errors import DatabaseError
 from others.constants import EXPENSE_CATEGORIES, INCOME_CATEGORIES
 from services.ocr.client import get_ocr_engine
 
@@ -16,7 +15,7 @@ class HealthModel(BaseModel):
     def check_health(self) -> None:
         try:
             self._database.ping()
-        except PyMongoError:
+        except DatabaseError:
             self.__status = "db_error"
             self.set_fail(error_code="server", detail="DB에 연결하지 못했습니다")
             return

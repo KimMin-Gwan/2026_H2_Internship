@@ -16,7 +16,7 @@
 - **비밀값을 읽지 않는다.** `.env`, 키 파일, 토큰을 열거나 출력하지 않는다. 필요한 값은 `.env.example` 에 이름만 적는다. 키·`.env`·업로드 폴더는 `.gitignore`.
 - **문서에 없는 기능을 추가하지 않는다.** 범위는 `00-overview.md` 2절이다. 시안에 없는 화면은 `06-design-system.md` 5절 규칙으로 만든다.
 - **한국어 문구는 정석적인 표현**으로, 짧게. 친근체(`~해요`), 이모지, 번역투를 쓰지 않는다. 사용자가 정하지 않은 조건·설명을 임의로 덧붙이지 않는다.
-- **구현 DB는 MongoDB뿐이다.** `08-db-design.md` 의 SQL은 학생용 설계 문서이므로 실행하지 않고, SQL 라이브러리를 추가하지 않는다.
+- **DB는 두 가지다: MongoDB(기본)와 SQLite(관계형).** `.env` 의 `DB_TYPE` 으로 고른다. 모델은 `Database`(base_database.py)의 메서드만 부르고, MongoDB·SQL 문법을 직접 쓰지 않는다. DB 기능을 더하면 `Mongo_Database` 와 `Sql_Database` 양쪽에 구현하고, 컬럼을 더하면 `schema.sql`·`sql_database_model.py` 의 `COLUMNS`·04·08 문서를 함께 고친다. SQLite는 파이썬 내장 `sqlite3` 를 쓴다(ORM 등 라이브러리를 추가하지 않는다).
 - **DB 문서는 중첩 객체 없이 평평하게** (04 문서). 백엔드는 슈퍼노바의 `views / controllers / models / data_domains` 구조 (01 문서 4절).
 - **프론트에 호스트·포트·키를 쓰지 않는다.** 모든 API 호출은 `/api/...` 상대 경로. OpenAI 호출은 백엔드에서만.
 - 인증 코드는 `auth` 모듈에 모으고 다른 곳이 내부 구현에 의존하지 않게 한다 (학생 과제용, 07 문서 2절).
@@ -29,7 +29,7 @@
 - 데모 데이터: `docker compose exec back python -m scripts.seed` (demo@yeongsugori.test / demo1234a, 있으면 건너뜀)
 - 백엔드 개발: 처음 한 번 `cd back && python -m venv .venv && .venv/Scripts/pip install -r requirements.txt`, 켤 때는 `cd back/app && ../.venv/Scripts/python main.py` (`.env` 를 스스로 읽는다. `JWT_SECRET_KEY` 필요, `MONGODB_URI`·`UPLOAD_DIR` 는 비워 두면 localhost·back/uploads)
 - 백엔드 import: `back/app` 이 기준 폴더다. 슈퍼노바처럼 `from models import ...`, `from utils import ...` 로 쓰고 `app.` 을 붙이지 않는다
-- 백엔드 테스트: `cd back && .venv/Scripts/pytest` (`.env` 의 Atlas 주소에 DB `yeongsugori_test` 로 붙는다. Atlas가 없으면 `docker compose up -d mongo` 로 로컬 mongo를 켠다). 실제 모델 호출 테스트는 기본에서 빠지고 `pytest -m live` 로만 돈다(`OPENAI_API_KEY` 또는 `ANTHROPIC_API_KEY` 필요, 키가 없는 쪽은 건너뛴다, 비용 발생)
+- 백엔드 테스트: `cd back && .venv/Scripts/pytest` (`.env` 의 `DB_TYPE` 을 따른다. mongo 면 Atlas 주소에 DB `yeongsugori_test` 로 붙고, Atlas가 없으면 `docker compose up -d mongo` 로 로컬 mongo를 켠다. sqlite 면 임시 파일을 쓴다. 다른 쪽으로 돌리려면 PowerShell 에서 `$env:DB_TYPE="sqlite"; .venv/Scripts/pytest`). 실제 모델 호출 테스트는 기본에서 빠지고 `pytest -m live` 로만 돈다(`OPENAI_API_KEY` 또는 `ANTHROPIC_API_KEY` 필요, 키가 없는 쪽은 건너뛴다, 비용 발생)
 - 프론트 개발: `cd front && npm install && npm run dev` (`/api` 는 `localhost:8000` 으로 넘어간다)
 - 프론트 검사: `cd front && npm run lint && npm test && npm run build` (`npm test` 는 `_lib/*.test.ts` 단위 테스트)
 - 컴포넌트 모음(개발 전용): `npm run dev` 후 `/dev/components`. 배포 빌드에서는 404

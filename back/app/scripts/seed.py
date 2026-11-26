@@ -11,8 +11,7 @@ from datetime import datetime, timedelta, timezone
 from PIL import Image, ImageDraw
 
 from data_domains.yeongsugori_data_domain import Receipt, Transaction, User
-from models import Mongo_Database
-from others import config
+from models import Database, make_database
 from services.ocr.mock import receipt_result
 from storage import storage
 from utils.password import hash_password
@@ -53,7 +52,7 @@ SEPTEMBER_TOTAL = 1036000  # 10월과 비교할 전월 지출 (전월 대비 +83
 
 
 class Seeder:
-    def __init__(self, database: Mongo_Database, uid: str) -> None:
+    def __init__(self, database: Database, uid: str) -> None:
         self.__database = database
         self.__uid = uid
         # 같은 날짜 안의 순서를 정하려고 저장 시각을 1초씩 늘린다.
@@ -81,7 +80,7 @@ def receipt_image() -> bytes:
     return output.getvalue()
 
 
-def seed(database: Mongo_Database) -> bool:
+def seed(database: Database) -> bool:
     if database.get_data_with_key(target="users", key="email", key_data=DEMO_EMAIL):
         return False
 
@@ -117,7 +116,7 @@ def seed(database: Mongo_Database) -> bool:
 
 
 if __name__ == "__main__":
-    database = Mongo_Database(uri=config.MONGODB_URI, db_name=config.MONGODB_DB)
+    database = make_database()
     database.make_indexes()
     if seed(database):
         print(f"데모 데이터를 넣었습니다: {DEMO_EMAIL} / {DEMO_PASSWORD}")

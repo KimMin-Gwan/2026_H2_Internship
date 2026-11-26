@@ -3,7 +3,7 @@
 from fastapi.testclient import TestClient
 
 from main import app
-from tests.conftest import PASSWORD, get_test_db, post, signup
+from tests.conftest import PASSWORD, add_test_receipt, get_test_db, post, signup
 
 EMAIL = "demo@yeongsugori.test"
 
@@ -52,17 +52,17 @@ def test_withdraw_deletes_everything(user_client, other_client):
     post(other_client, "/transaction/create_transaction", {
         "type": "expense", "amount": 5000, "category": "식비", "title": "", "memo": "", "occurred_on": "2026-10-03"})
     uid = user_client.get("/api/auth/get_me").json()["body"]["user"]["uid"]
-    get_test_db()["receipts"].insert_one({"receipt_id": "receipt-1", "uid": uid})
+    add_test_receipt(uid=uid)
 
     body = post(user_client, "/user/withdraw", {"password": PASSWORD}).json()["body"]
     assert body["result"] is True
     assert user_client.get("/api/auth/get_me").status_code == 401
 
-    db = get_test_db()
-    assert db["users"].count_documents({"uid": uid}) == 0
-    assert db["transactions"].count_documents({"uid": uid}) == 0
-    assert db["receipts"].count_documents({"uid": uid}) == 0
-    assert db["transactions"].count_documents({}) == 1  # 다른 사용자 내역은 남는다
+    database = get_test_db()
+    assert database.count_with_query(target="users", query={"uid": uid}) == 0
+    assert database.count_with_query(target="transactions", query={"uid": uid}) == 0
+    assert database.count_with_query(target="receipts", query={"uid": uid}) == 0
+    assert database.count_with_query(target="transactions", query={}) == 1  # 다른 사용자 내역은 남는다
 
     # 같은 이메일로 다시 가입할 수 있다
     assert signup(TestClient(app)).json()["body"]["result"] is True

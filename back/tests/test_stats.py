@@ -6,7 +6,9 @@ from models import stats_model
 from others import config
 from services.advice import mock as advice_mock
 from services.advice.errors import advice_timeout
-from tests.conftest import get_test_db, post
+from datetime import datetime, timezone
+
+from tests.conftest import get_my_uid, get_test_db, post
 
 
 def create(client, category, amount, occurred_on="2026-10-03", type="expense"):
@@ -43,9 +45,10 @@ def test_discount_and_zero_category(user_client):
     create(user_client, "식비", 10000)
     item = create(user_client, "생활", 3000)["item"]
     # 생활 카테고리에 할인(음수) 내역을 직접 넣어 합계를 0원으로 만든다.
-    get_test_db()["transactions"].insert_one({**item, "transaction_id": "discount-1", "amount": -3000,
-                                             "uid": get_test_db()["users"].find_one()["uid"],
-                                             "created_at": None, "updated_at": None})
+    now = datetime.now(timezone.utc)
+    get_test_db().add_new_data(target="transactions", new_data={
+        **item, "transaction_id": "discount-1", "amount": -3000, "uid": get_my_uid(user_client),
+        "created_at": now, "updated_at": now})
 
     body = stats(user_client)
     assert body["total_expense"] == 10000

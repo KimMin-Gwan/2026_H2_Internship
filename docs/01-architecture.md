@@ -53,7 +53,7 @@ yeongsugori/
 │  │  │                          transaction_view.py, stats_view.py, receipt_view.py
 │  │  ├─ controllers/            기능별 흐름. core_controller.py, sign_controller.py, ... (view와 1:1)
 │  │  ├─ models/                 규칙·DB 접근·응답 데이터. base_model.py, core_model.py, sign_model.py, ...
-│  │  │  └─ database/            database_model.py (Mongo_Database)
+│  │  │  └─ database/            base_database.py (Database: 메서드 목록), database_model.py (Mongo_Database), sql_database_model.py (Sql_Database), schema.sql, database_factory.py (make_database), errors.py
 │  │  ├─ data_domains/           DB 문서 모양. base_domain.py, yeongsugori_data_domain.py (User, Transaction, Receipt)
 │  │  ├─ utils/                  head_parser.py, request_manager.py(요청 도우미, 로그인 확인), jwt_manager.py, password.py,
 │  │  │                          validator.py, date_util.py, image_util.py(이미지 형식 확인·전처리)
@@ -74,7 +74,7 @@ yeongsugori/
 2. nginx가 `/api/` 를 back으로 전달
 3. **view** `transaction_view.py` 가 요청을 받아 요청 클래스(`CreateTransactionRequest`)로 `body` 값을 꺼낸다. `RequestManager` 가 쿠키의 JWT를 확인한다(없거나 만료면 HTTP 401)
 4. **controller** `Transaction_Controller.try_create_transaction()` 이 모델을 만들고, 로그인한 사용자를 넣고, 모델에 일을 시킨다
-5. **model** `TransactionModel` 이 규칙(금액·카테고리 검증)을 적용하고 `Transaction` 도메인을 `Mongo_Database` 로 저장한다. 실패면 `set_fail("validation", ...)`
+5. **model** `TransactionModel` 이 규칙(금액·카테고리 검증)을 적용하고 `Transaction` 도메인을 DB 객체(`Database`: `.env` 의 `DB_TYPE` 에 따라 `Mongo_Database` 또는 `Sql_Database`)로 저장한다. 실패면 `set_fail("validation", ...)`
 6. view가 `model.get_response_form_data()` 로 `{header, body: {result, ...}}` 를 만들고 `RequestManager.make_json_response()` 로 돌려준다
 
 ## 4. 백엔드 계층 규칙 (슈퍼노바 방식)
@@ -127,6 +127,8 @@ docker compose up --build
 ```
 MONGODB_URI=                  # Atlas 주소 (mongodb+srv://...). 비우면 이 PC의 mongo
 MONGODB_DB=yeongsugori
+DB_TYPE=mongo                 # mongo | sqlite (관계형, 08 문서 6절)
+SQLITE_PATH=                  # DB_TYPE=sqlite 일 때의 파일. 비우면 docker는 /data/db(볼륨), 개발 서버는 back/data/yeongsugori.db
 JWT_SECRET_KEY=              # 길고 임의의 문자열. 비워 두면 서버가 시작하지 않는다
 JWT_EXPIRE_DAYS=7
 COOKIE_SECURE=false

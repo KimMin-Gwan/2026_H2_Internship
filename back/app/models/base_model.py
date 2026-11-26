@@ -1,11 +1,11 @@
 # 모든 모델의 부모 — 로그인한 사용자와 처리 결과(result, detail, error_code)를 들고 있다가 응답 모양으로 만든다.
 
 from data_domains.yeongsugori_data_domain import User
-from models.database.database_model import Mongo_Database
+from models.database.base_database import Database
 
 
 class BaseModel:
-    def __init__(self, database: Mongo_Database) -> None:
+    def __init__(self, database: Database) -> None:
         self._database = database
         self._user = User()
         self._result = False

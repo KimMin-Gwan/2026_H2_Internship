@@ -1,0 +1,4 @@
+cd back
+.venv\Scripts\pytest
+$env:DB_TYPE="sqlite"; .venv\Scripts\pytest
+

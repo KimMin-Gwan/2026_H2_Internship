@@ -1,7 +1,7 @@
 # 가계부 내역 API — 생성·조회·수정·삭제, 월 경계, 요약, 다른 사용자 데이터
 
 from utils.date_util import today_kst
-from tests.conftest import get_test_db, post
+from tests.conftest import add_test_receipt, get_my_uid, get_test_db, post
 
 
 def create(client, **fields):
@@ -98,16 +98,17 @@ def test_edit(user_client):
     assert body["item"]["type"] == "income"
     assert body["item"]["title"] == "용돈"
 
-    saved = get_test_db()["transactions"].find_one({"transaction_id": item["transaction_id"]})
+    saved = get_test_db().get_data_with_key(target="transactions", key="transaction_id", key_data=item["transaction_id"])
     assert saved["amount"] == 100000
     assert saved["updated_at"] >= saved["created_at"]
 
 
 def test_edit_receipt_transaction(user_client):
     item = create(user_client)["item"]
-    # 영수증 내역은 M7에서 만든다. 여기서는 DB에 영수증 ID만 붙인다.
-    get_test_db()["transactions"].update_one({"transaction_id": item["transaction_id"]},
-                                             {"$set": {"receipt_id": "receipt-1"}})
+    # 영수증 내역은 M7에서 만든다. 여기서는 DB에 영수증을 하나 넣고 내역에 그 ID를 붙인다.
+    add_test_receipt(uid=get_my_uid(user_client))
+    get_test_db().modify_data_with_query(target="transactions", query={"transaction_id": item["transaction_id"]},
+                                         new_data={"receipt_id": "receipt-1"})
 
     body = post(user_client, "/transaction/edit_transaction", {**item, "type": "income", "category": "급여"}).json()["body"]
     assert body["error_code"] == "bad_request"

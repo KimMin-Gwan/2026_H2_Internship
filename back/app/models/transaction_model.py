@@ -117,11 +117,9 @@ class TransactionModel(BaseModel):
 
     # 월 전체 지출·수입 합계 (지출 합계에는 할인 같은 음수 금액도 들어간다)
     def __get_month_summary(self, start: str, end: str) -> dict:
-        pipeline = [
-            {"$match": {"uid": self._user.uid, "occurred_on": {"$gte": start, "$lt": end}}},
-            {"$group": {"_id": "$type", "total": {"$sum": "$amount"}}},
-        ]
-        totals = {row["_id"]: row["total"] for row in self._database.aggregate(target="transactions", pipeline=pipeline)}
+        rows = self._database.get_group_sums(target="transactions", group_key="type", sum_key="amount",
+                                             query={"uid": self._user.uid, "occurred_on": {"$gte": start, "$lt": end}})
+        totals = {row["key"]: row["total"] for row in rows}
         total_expense = totals.get("expense", 0)
         total_income = totals.get("income", 0)
         return {"total_expense": total_expense, "total_income": total_income, "balance": total_income - total_expense}

@@ -1,9 +1,8 @@
-# MongoDB 연결 확인 — 먼저 docker compose up -d mongo 로 DB를 띄운다.
+# DB 연결 확인 — .env 의 DB_TYPE 에 따라 MongoDB 또는 SQLite
 
-from models import Mongo_Database
-from others import config
+from models import make_database
 
 
 def test_db_ping():
-    database = Mongo_Database(uri=config.MONGODB_URI, db_name=config.MONGODB_DB)
+    database = make_database()
     assert database.ping()

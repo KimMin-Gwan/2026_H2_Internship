@@ -5,16 +5,16 @@ const fs = require("fs");
 
 const G = "#00835F", INK = "#12241F", LINE = "#5F6F69";
 const T = {
-  users: { pos: [40, 40], cols: [["id", "PK", "INT"], ["email", "UQ", "VARCHAR"], ["password_hash", "", "VARCHAR"], ["nickname", "", "VARCHAR"], ["created_at", "", "DATETIME"]] },
-  receipts: { pos: [440, 40], cols: [["id", "PK", "INT"], ["user_id", "FK", "INT"], ["image_key", "", "VARCHAR"], ["status", "", "VARCHAR"], ["merchant", "", "VARCHAR"], ["purchased_on", "", "DATE"], ["total_amount", "", "INT"], ["parsed_json", "", "TEXT"], ["confidence", "", "VARCHAR"], ["created_at", "", "DATETIME"]] },
-  categories: { pos: [840, 40], cols: [["id", "PK", "INT"], ["name", "UQ", "VARCHAR"], ["type", "", "VARCHAR"]] },
-  transactions: { pos: [440, 400], cols: [["id", "PK", "INT"], ["user_id", "FK", "INT"], ["receipt_id", "FK", "INT"], ["category_id", "FK", "INT"], ["type", "", "VARCHAR"], ["amount", "", "INT"], ["title", "", "VARCHAR"], ["merchant", "", "VARCHAR"], ["memo", "", "VARCHAR"], ["occurred_on", "", "DATE"], ["created_at", "", "DATETIME"], ["updated_at", "", "DATETIME"]] },
+  users: { pos: [40, 40], cols: [["uid", "PK", "VARCHAR"], ["email", "UQ", "VARCHAR"], ["password_hash", "", "VARCHAR"], ["nickname", "", "VARCHAR"], ["created_at", "", "DATETIME"]] },
+  receipts: { pos: [440, 40], cols: [["receipt_id", "PK", "VARCHAR"], ["uid", "FK", "VARCHAR"], ["image_key", "", "VARCHAR"], ["status", "", "VARCHAR"], ["merchant", "", "VARCHAR"], ["purchased_on", "", "DATE"], ["total_amount", "", "INT"], ["parsed_json", "", "TEXT"], ["confidence", "", "VARCHAR"], ["ocr_provider", "", "VARCHAR"], ["ocr_model", "", "VARCHAR"], ["created_at", "", "DATETIME"]] },
+  categories: { pos: [840, 40], cols: [["name", "PK", "VARCHAR"], ["type", "", "VARCHAR"], ["sort_order", "", "INT"]] },
+  transactions: { pos: [440, 440], cols: [["transaction_id", "PK", "VARCHAR"], ["uid", "FK", "VARCHAR"], ["receipt_id", "FK", "VARCHAR"], ["category", "FK", "VARCHAR"], ["type", "", "VARCHAR"], ["amount", "", "INT"], ["title", "", "VARCHAR"], ["merchant", "", "VARCHAR"], ["memo", "", "VARCHAR"], ["occurred_on", "", "DATE"], ["created_at", "", "DATETIME"], ["updated_at", "", "DATETIME"]] },
 };
 const BRIEF = {
-  users: ["id", "email", "password_hash", "nickname"],
-  receipts: ["id", "user_id", "status", "merchant", "total_amount", "parsed_json"],
-  categories: ["id", "name", "type"],
-  transactions: ["id", "user_id", "receipt_id", "category_id", "type", "amount", "title", "occurred_on"],
+  users: ["uid", "email", "password_hash", "nickname"],
+  receipts: ["receipt_id", "uid", "status", "merchant", "total_amount", "parsed_json"],
+  categories: ["name", "type"],
+  transactions: ["transaction_id", "uid", "receipt_id", "category", "type", "amount", "title", "occurred_on"],
 };
 
 function html(brief) {
@@ -26,7 +26,7 @@ function html(brief) {
   const height = (k) => HH + cols(k).length * RH;
   const boxes = Object.keys(T).map((k) => {
     const [x, y] = pos[k];
-    const rows = cols(k).map(([n, key, ty]) => `<div style="display:flex;align-items:center;height:${RH}px;padding:0 12px;border-top:1px solid #DCE5E0;font-size:${FS}px;color:${INK}">
+    const rows = cols(k).map(([n, key, ty]) => `<div style="display:flex;align-items:center;box-sizing:border-box;height:${RH}px;padding:0 12px;border-top:1px solid #DCE5E0;font-size:${FS}px;color:${INK}">
       <span style="width:34px;font-weight:800;font-size:${FS - 3}px;color:${key === "PK" ? "#B45309" : key === "FK" ? "#1D4ED8" : "#5F6F69"}">${key}</span>
       <span style="flex:1;font-weight:${key ? 700 : 500}">${n}</span><span style="color:#5F6F69;font-size:${FS - 3}px">${ty}</span></div>`).join("");
     return `<div style="position:absolute;left:${x}px;top:${y}px;width:${W}px;background:#fff;border:2px solid ${G};border-radius:14px;overflow:hidden">

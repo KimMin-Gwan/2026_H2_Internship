@@ -80,30 +80,26 @@ class StatsModel(BaseModel):
         if total_expense <= 0:
             return []
         return [
-            {"category": row["_id"], "amount": row["amount"], "count": row["count"],
-             "ratio": self.__round_ratio(amount=row["amount"], total=total_expense)}
+            {"category": row["key"], "amount": row["total"], "count": row["count"],
+             "ratio": self.__round_ratio(amount=row["total"], total=total_expense)}
             for row in self.__get_category_rows(month=month)
         ]
 
-    def __expense_match(self, month: str) -> dict:
+    # 내 지출 중 그 달의 것
+    def __expense_query(self, month: str) -> dict:
         start, end = month_range(month)
-        return {"$match": {"uid": self._user.uid, "type": "expense", "occurred_on": {"$gte": start, "$lt": end}}}
+        return {"uid": self._user.uid, "type": "expense", "occurred_on": {"$gte": start, "$lt": end}}
 
     # 한 달 지출 합계 (할인 같은 음수 금액 포함)
     def __get_total_expense(self, month: str) -> int:
-        pipeline = [self.__expense_match(month), {"$group": {"_id": None, "total": {"$sum": "$amount"}}}]
-        rows = self._database.aggregate(target="transactions", pipeline=pipeline)
-        return rows[0]["total"] if rows else 0
+        return self._database.get_sum(target="transactions", query=self.__expense_query(month), sum_key="amount")
 
-    # 카테고리별 합계·건수. 0원 이하인 카테고리는 빼고, 금액이 큰 순서로 (04 문서 5절)
+    # 카테고리별 합계·건수. 0원 이하인 카테고리는 빼고, 금액이 큰 순서로(같으면 이름순) (04 문서 5절)
     def __get_category_rows(self, month: str) -> list:
-        pipeline = [
-            self.__expense_match(month),
-            {"$group": {"_id": "$category", "amount": {"$sum": "$amount"}, "count": {"$sum": 1}}},
-            {"$match": {"amount": {"$gt": 0}}},
-            {"$sort": {"amount": -1, "_id": 1}},
-        ]
-        return self._database.aggregate(target="transactions", pipeline=pipeline)
+        rows = self._database.get_group_sums(target="transactions", query=self.__expense_query(month),
+                                             group_key="category", sum_key="amount")
+        rows = [row for row in rows if row["total"] > 0]
+        return sorted(rows, key=lambda row: (-row["total"], row["key"]))
 
     # 소수 첫째 자리 반올림. round()는 0.5를 짝수 쪽으로 보내므로 직접 계산한다.
     def __round_ratio(self, amount: int, total: int) -> float:

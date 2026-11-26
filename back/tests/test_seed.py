@@ -1,13 +1,12 @@
 # 시연용 데이터 넣기 — 데모 계정으로 로그인하면 시안과 같은 합계가 보이고, 두 번 돌려도 한 번만 들어간다
 
-from models import Mongo_Database
-from others import config
+from models import make_database
 from scripts.seed import DEMO_EMAIL, DEMO_PASSWORD, seed
 from tests.conftest import post
 
 
 def test_seed_once_and_matches_design(client):
-    database = Mongo_Database(uri=config.MONGODB_URI, db_name=config.MONGODB_DB)
+    database = make_database()
     assert seed(database) is True
     assert seed(database) is False  # 이미 있으면 건너뛴다
 

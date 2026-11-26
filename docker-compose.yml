@@ -2,7 +2,8 @@ name: yeongsugori
 
 # 시연용 실행: docker compose up --build → http://localhost:8080
 # 밖으로 여는 포트는 nginx(8080) 하나다.
-# DB는 MongoDB Atlas가 기본이다 (.env 의 MONGODB_URI). Atlas 없이 이 PC의 mongo를 쓰려면 아래 mongo 서비스 설명을 본다.
+# DB는 .env 의 DB_TYPE 으로 고른다: mongo(기본, MongoDB Atlas) | sqlite(관계형, sqlite_data 볼륨의 파일 하나).
+# Atlas 없이 이 PC의 mongo를 쓰려면 아래 mongo 서비스 설명을 본다.
 
 services:
   nginx:
@@ -26,8 +27,11 @@ services:
       - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017}
       # .env의 UPLOAD_DIR가 비어 있으면 아래 uploads 볼륨 경로를 쓴다
       - UPLOAD_DIR=${UPLOAD_DIR:-/data/uploads}
+      # DB_TYPE=sqlite 일 때의 DB 파일. 비어 있으면 아래 sqlite_data 볼륨에 둔다
+      - SQLITE_PATH=${SQLITE_PATH:-/data/db/yeongsugori.db}
     volumes:
       - uploads:/data/uploads
+      - sqlite_data:/data/db
 
   # Atlas 대신 이 PC에서 돌리는 mongo. 기본으로는 켜지지 않는다 (profiles).
   # 쓰려면 .env 의 MONGODB_URI 를 비우고: docker compose --profile local-db up --build
@@ -43,3 +47,4 @@ services:
 volumes:
   uploads:
   mongo_data:
+  sqlite_data:

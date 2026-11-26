@@ -92,7 +92,7 @@ def test_wrong_signature_token_is_401(client):
 
 def test_deleted_user_token_is_401(user_client):
     # 사용자 문서만 지운다. 쿠키의 토큰은 아직 만료 전이다.
-    get_test_db()["users"].delete_many({})
+    get_test_db().delete_all_data(target="users")
     res = user_client.get("/api/auth/get_me")
     assert res.status_code == 401
     assert res.json()["body"]["error_code"] == "unauthorized"

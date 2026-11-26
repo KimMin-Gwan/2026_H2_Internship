@@ -1,5 +1,7 @@
 # 04. 데이터 스키마 (MongoDB)
 
+> `DB_TYPE=sqlite` 로 켜면 같은 데이터를 관계형 테이블에 저장한다(08 문서). 필드 이름과 값의 모양은 이 문서와 같고, 모델 코드도 같다.
+
 DB 이름 `yeongsugori`. 컬렉션은 3개. 로그인 상태는 JWT 쿠키에 있으므로 세션 컬렉션은 없다. **문서 안에 객체·배열을 중첩하지 않는다** (슈퍼노바 방식). 품목 목록 같은 1:N은 별도 문서로 푼다.
 ID는 슈퍼노바처럼 컬렉션마다 **문자열 필드**로 둔다(`uid`, `transaction_id`, `receipt_id`). 값은 서버가 만드는 `uuid4().hex` 이다. MongoDB의 `_id` 는 쓰지 않고 조회할 때 뺀다. 코드에서는 `data_domains/yeongsugori_data_domain.py` 의 클래스가 문서 하나를 나타낸다. 시각은 UTC `datetime`, 날짜는 `"YYYY-MM-DD"` 문자열, 금액은 정수(원).
 

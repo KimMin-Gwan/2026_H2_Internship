@@ -103,3 +103,6 @@
 | 2026-11-19 | 어떤 AI가 쓰였는지 화면에 표시한다: O3 인식 결과의 품목 수 줄 오른쪽 칩, S1 설정 정보의 `영수증 분석 AI` 줄. 실제 분석은 모델 이름, mock 은 `예시 결과`. `receipts` 에 `ocr_provider`·`ocr_model` 을 저장하고 `GET /meta/get_ocr_engine` 을 더했다. 시안(`design/`)에는 아직 반영하지 않았다 | 사용자 (위치는 Claude) |
 | 2026-11-19 | **AI 소비 분석** 추가(범위 추가): 분석 탭 카드의 `분석` 버튼 → `POST /stats/analyze_spending` → `services/advice/`. 내역 전체를 보낸다, 결과는 저장하지 않는다, 호출 횟수 제한은 두지 않는다. 화면은 시안 N1·N1b 를 먼저 만들고 구현했다 | 사용자 |
 | 2026-11-19 | `services/ocr/client.py` 의 `post_json`, `openai_output_text`, `claude_output_text` 를 공개 이름으로 바꿨다(소비 분석이 함께 쓴다). 소비 분석도 `OCR_MODE`·`OCR_TIMEOUT_SEC` 를 쓴다(이름은 그대로 두었다) | Claude |
+| 2026-11-26 | **관계형 DB(SQLite) 추가.** `.env` 의 `DB_TYPE=mongo\|sqlite` 로 고른다. "구현 DB는 MongoDB뿐" 규칙(2026-11-05)을 바꿨다. 수업에서 관계형 설계 경험을 코드로 보여 주기 위함이고 특정 DB 요구는 없어, 설치가 필요 없는 SQLite(파이썬 내장 `sqlite3`)로 정했다 | 사용자 |
+| 2026-11-26 | 관계형 테이블의 기본 키는 자동 증가 숫자가 아니라 MongoDB와 같은 문자열 ID(`uid`, `transaction_id`, `receipt_id`), `categories` 의 기본 키는 이름. 08 문서와 ERD를 이에 맞게 다시 만들었다. ORM 없이 SQL 문을 직접 쓴다 | 사용자 (세부는 Claude) |
+| 2026-11-26 | DB 클래스를 `Database`(부모) → `Mongo_Database`, `Sql_Database` 로 나눴다. 모델의 MongoDB 집계 문법 3곳을 `get_sum`·`get_group_sums` 로 바꿨다(정렬·0원 제외는 모델이 한다). 모델은 `pymongo` 오류 대신 `DatabaseError`·`DuplicateKeyError` 를 본다. 테스트는 DB 객체의 메서드로 DB를 확인하도록 바꿔 두 DB에서 모두 돈다 | Claude |
